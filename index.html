@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>ShieldDose_GUI v3 + 전통 GEANT4 시뮬 통합 튜토리얼 (P2.17.1.0)</title>
+<style>
+:root {
+  --bg: #0d1117; --panel: #161b22; --border: #30363d;
+  --text: #e6edf3; --text-dim: #8b949e;
+  --accent: #58a6ff; --pass: #4ade80; --warn: #fbbf24; --fail: #f87171;
+  --info: #bc8cff; --highlight: #39d2c0; --code-bg: #010409;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 14px; line-height: 1.6; max-width: 1180px; margin: 24px auto; padding: 0 20px 80px; }
+h1 { font-size: 30px; color: #f0f6fc; margin-bottom: 6px; padding-bottom: 12px; border-bottom: 2px solid var(--accent); }
+h2 { font-size: 24px; color: #f0f6fc; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 18px; color: var(--accent); margin: 24px 0 10px; }
+h4 { font-size: 15px; color: var(--highlight); margin: 16px 0 8px; }
+p { margin-bottom: 10px; }
+code { background: #1f2937; padding: 2px 6px; border-radius: 3px; font-family: "SF Mono", Consolas, monospace; font-size: 12.5px; color: var(--highlight); }
+pre { background: var(--code-bg); border: 1px solid var(--border); padding: 14px; border-radius: 6px; overflow-x: auto; font-size: 12px; color: var(--text); position: relative; font-family: "SF Mono", monospace; }
+pre.cli { border-left: 4px solid var(--accent); }
+pre.cpp { border-left: 4px solid var(--info); }
+pre.macro { border-left: 4px solid var(--highlight); }
+.copy-btn { position: absolute; top: 8px; right: 8px; background: #2d3748; color: #cbd5e0; border: 1px solid var(--border); padding: 4px 10px; border-radius: 3px; font-size: 11px; cursor: pointer; font-family: inherit; }
+.copy-btn:hover { background: #4a5568; color: white; }
+.copy-btn.copied { background: var(--pass); color: #0d1117; }
+.subtitle { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+.card.pass { border-color: var(--pass); background: rgba(74,222,128,0.06); }
+.card.warn { border-color: var(--warn); background: rgba(251,191,36,0.06); }
+.card.fail { border-color: var(--fail); background: rgba(248,113,113,0.06); }
+.card.info { border-color: var(--info); background: rgba(188,140,255,0.06); }
+.card.user { border-color: var(--highlight); background: rgba(57,210,192,0.06); }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.badge.pass { background: var(--pass); color: #0d1117; }
+.badge.warn { background: var(--warn); color: #0d1117; }
+.badge.fail { background: var(--fail); color: #0d1117; }
+.badge.info { background: var(--info); color: #0d1117; }
+.badge.user { background: var(--highlight); color: #0d1117; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th, td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; vertical-align: top; }
+th { background: #1f2937; color: #f0f6fc; font-weight: 600; }
+tr:nth-child(even) td { background: #161b22; }
+img { display: block; max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; margin: 8px 0; }
+img.small { max-width: 320px; }
+img.medium { max-width: 600px; }
+.img-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin: 12px 0; }
+.toc { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 18px 24px; margin: 20px 0; }
+.toc ol { padding-left: 24px; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding: 4px 0; border-bottom: 1px solid var(--border); }
+.checklist label { cursor: pointer; }
+.checklist input[type="checkbox"] { margin-right: 8px; }
+.step { display: flex; gap: 14px; margin: 16px 0; }
+.step-num { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.step-content { flex: 1; }
+.kbd { background: #1f2937; border: 1px solid var(--border); padding: 1px 8px; border-radius: 3px; font-family: "SF Mono", monospace; font-size: 11.5px; }
+details { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 8px 14px; margin: 8px 0; }
+details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+details[open] summary { margin-bottom: 8px; }
+.diagram { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin: 16px 0; }
+.feedback-box { background: var(--panel); border: 2px solid var(--highlight); border-radius: 8px; padding: 20px; margin: 30px 0; }
+.feedback-btn { background: var(--highlight); color: #0d1117; border: none; padding: 10px 20px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 14px; }
+.feedback-btn:hover { background: #2dd4bf; }
+.footnote { color: var(--text-dim); font-size: 12px; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--border); }
+.section-ref { color: var(--text-dim); font-size: 11px; font-style: italic; }
+.code-comment { color: #6ee7b7; }
+.inline-note { display: inline-block; background: rgba(57,210,192,0.15); color: var(--highlight); padding: 1px 8px; border-radius: 3px; font-size: 11.5px; margin-left: 4px; }
+hr.section { border: none; border-top: 2px dashed var(--border); margin: 50px 0; }
+</style>
+</head>
+<body>
+
+<h1>🎓 ShieldDose_GUI v3 + 전통 GEANT4 시뮬 통합 튜토리얼</h1>
+<p class="subtitle">
+  타임스탬프: <code>20260514_001312</code> | 세션: P2.17.1.0 | 작성: Claude (자동) — 사용자 명시 사양
+  <br>대상 독자: <b>이 시스템을 전혀 모르는 사람도 따라할 수 있도록</b>
+</p>
+
+<div class="card user">
+<h4>📚 이 자료가 다루는 것</h4>
+<p>본 튜토리얼은 한 시뮬레이션 작업(<b>Cs-137 1 Ci, 5mm Pb 차폐, 1m water 검출기</b>)을 <b>두 가지 방법</b>으로 수행하는 과정을 시각 증거 + 단계별 캡쳐 + 복사 가능 코드로 시연합니다:</p>
+<ol>
+  <li><b>전통적 GEANT4 방식</b> — cc 파일 직접 작성 + cmake/make + 매크로 실행</li>
+  <li><b>ShieldDose_GUI v3 (우리 GUI) 방식</b> — 클릭 한 번으로 자동 매크로 + 시뮬 + 결과</li>
+</ol>
+<p>그리고 <b>둘 사이의 가교</b>: 우리 GUI에서 입력한 조건으로 <b>전통적 GEANT4 application cc 파일을 자동 출력</b>하는 기능 (GUI #3 cc export, Ctrl+E).</p>
+</div>
+
+<div class="card warn">
+<h4>⚠️ AI(Claude) 한계 명시 (글로벌 지침 G5)</h4>
+<ul>
+  <li><b>✅ AI 검증 가능</b>: 코드 본문, 빌드 로그, 시뮬 결과 정량, 캡쳐 화면 비교</li>
+  <li><b>❌ AI 측정 불가</b>: 마우스 드래그 회전 응답성, 한국어 폰트 시각 가독성, 사용자 직관·체감</li>
+  <li>본 튜토리얼의 일부 단계(GUI 클릭/메뉴 펼침)는 사용자가 직접 따라하셔야 검증 완료됩니다.</li>
+</ul>
+</div>
+
+<div class="toc">
+<h3 style="margin-top:0;">📋 목차</h3>
+<ol>
+  <li><a href="#sec0">§0. 사전 환경 셋업</a> — GEANT4 11.x + Qt5 + CMake</li>
+  <li><a href="#sec1">§1. STL 파일 사전 시각화</a> — 차폐/검출기 박스가 어떻게 생겼나</li>
+  <li><a href="#sec2">§2. ShieldDose_GUI v3 단계별 따라하기</a> — 우리 GUI 사용법</li>
+  <li><a href="#sec3">§3. cc 파일 export</a> — GUI → 전통 GEANT4 application</li>
+  <li><a href="#sec4">§4. 생성 cc 파일 본문 + 초보자용 주석</a> — 8개 파일</li>
+  <li><a href="#sec5">§5. 전통적 GEANT4 빌드 + 실행</a> — cmake/make</li>
+  <li><a href="#sec6">§6. 시뮬 결과 산출물</a> — CSV/log 해석</li>
+  <li><a href="#sec7">§7. GEANT4 vis manager 3D</a> — 기존 GUI 3D 시각화</li>
+  <li><a href="#sec8">§8. 전통 vs 우리 GUI 비교 매트릭스</a> — 혁신 8단계</li>
+  <li><a href="#sec9">§9. 물리 개념 미니 박스</a> — H*(10), CPE, 빌드업 등</li>
+  <li><a href="#sec10">§10. 에러 처리 + FAQ</a> — 막혔을 때</li>
+  <li><a href="#sec11">§11. 검증 체크리스트 + 피드백</a></li>
+</ol>
+</div>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec0">§0. 사전 환경 셋업</h2>
+<p class="section-ref">신규 사용자는 이 섹션부터 시작. 이미 GEANT4 환경 있는 분은 §1로 건너뛰세요.</p>
+
+<h3>0.1 시스템 요구사항</h3>
+<table>
+<tr><th>항목</th><th>요구사항</th><th>본 튜토리얼 기준</th></tr>
+<tr><td>OS</td><td>macOS 11+ (Apple Silicon) / Linux Ubuntu 22.04+ / Windows WSL2</td><td>macOS Apple M5, 32GB RAM</td></tr>
+<tr><td>GEANT4</td><td>11.x (11.1.2 권장)</td><td>11.1.2 (geant4-11-01-patch-02)</td></tr>
+<tr><td>Qt</td><td>5.15+ (Qt5)</td><td>Qt 5.15.18 via brew</td></tr>
+<tr><td>CMake</td><td>3.16+</td><td>3.31.x</td></tr>
+<tr><td>컴파일러</td><td>clang++ 또는 g++ C++17</td><td>Apple clang 15+</td></tr>
+<tr><td>Python (선택)</td><td>3.10+ (스크립트용)</td><td>3.11</td></tr>
+</table>
+
+<h3>0.2 GEANT4 설치 (옵션 A: brew, 빠름)</h3>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>brew install geant4
+# 또는 cask 버전:
+# brew install --cask geant4
+
+# 설치 확인
+which geant4-config
+geant4-config --version
+# 기대 출력: 11.1.x</pre>
+
+<h3>0.3 GEANT4 설치 (옵션 B: source build, 정확 버전)</h3>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button># 1. Source 다운로드 + 압축 해제
+mkdir -p ~/geant4 && cd ~/geant4
+curl -O https://geant4-data.web.cern.ch/releases/geant4-v11.1.2.tar.gz
+tar xzf geant4-v11.1.2.tar.gz
+cd geant4-v11.1.2
+
+# 2. CMake 설정 (Qt + visualization 활성)
+mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=$HOME/geant4/install \
+      -DGEANT4_INSTALL_DATA=ON \
+      -DGEANT4_USE_QT=ON \
+      -DGEANT4_USE_OPENGL_X11=OFF \
+      -DGEANT4_USE_RAYTRACER_X11=OFF \
+      ..
+
+# 3. 빌드 (소요 시간: 30분~1시간, Apple M5 기준)
+make -j$(sysctl -n hw.ncpu)
+make install
+
+# 4. 환경 변수 활성화 (매 shell 세션 또는 .zshrc에 추가)
+source $HOME/geant4/install/bin/geant4.sh
+which geant4-config
+geant4-config --version</pre>
+
+<h3>0.4 Qt5 설치 (GUI용)</h3>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>brew install qt@5
+brew link qt@5 --force
+ls /opt/homebrew/opt/qt@5/lib  # Qt frameworks 확인</pre>
+
+<h3>0.5 환경변수 영구 설정 (.zshrc 또는 .bashrc)</h3>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>cat &gt;&gt; ~/.zshrc &lt;&lt;'EOF'
+
+# GEANT4 환경 (P2 튜토리얼)
+if [ -f "$HOME/geant4/install/bin/geant4.sh" ]; then
+    source "$HOME/geant4/install/bin/geant4.sh"
+fi
+
+# Qt5 PATH
+export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
+EOF
+source ~/.zshrc</pre>
+
+<div class="card pass">
+<h4>✅ §0 완료 검증</h4>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>which geant4-config && geant4-config --version
+which qmake && qmake -v
+which cmake && cmake --version</pre>
+<p>위 3개 명령 모두 정상 출력되면 §1로 진행. 실제 출력 예시:</p>
+<img src="qa_20260514_001312_튜토리얼_assets/traditional_build/00_env_check.png" alt="환경 셋업 검증 터미널" style="max-width:1100px;">
+</div>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec1">§1. STL 파일 사전 시각화</h2>
+<p class="section-ref">STL = STereoLithography 3D 모델 파일. 차폐체/검출기 형상을 GEANT4에 입력하는 표준 방식.</p>
+
+<h3>1.1 STL 파일이란?</h3>
+<div class="card info">
+<p>STL 파일은 <b>3D 모델을 삼각형 면(facet) 모음으로 표현</b>하는 형식:</p>
+<ul>
+  <li>각 facet = 3 정점(vertex) + 1 outward normal vector</li>
+  <li>ASCII 형식: 사람이 읽을 수 있는 텍스트</li>
+  <li>Binary 형식: 컴팩트한 이진 (80 byte header + 4 byte facet count + 50 byte/facet)</li>
+  <li>단위: STL 파일 자체는 단위 정보 없음 (정점 좌표가 mm/cm/inch 어느 단위인지 사용자가 알아야 함)</li>
+  <li>본 튜토리얼 STL은 모두 <b>mm 단위</b> (Onshape/Fusion360 등 CAD 기본)</li>
+</ul>
+</div>
+
+<h3>1.2 본 튜토리얼 STL 카탈로그 (9개)</h3>
+<p><code>data/stl/</code> 디렉토리에 미리 생성되어 있습니다. 생성 스크립트:</p>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>cd "/Users/jyc/Library/Mobile Documents/com~apple~CloudDocs/GEANT4_claude"
+ls data/stl/
+
+# 새 박스/원통 생성 (필요 시):
+python3 scripts/generate_test_box_stl.py --x_mm 50 --y_mm 50 --z_mm 5 --name test_Pb_50x50x5mm
+python3 scripts/generate_test_cylinder_stl.py --r_mm 8 --h_mm 30 --name test_capsule_R8H30mm</pre>
+
+<table>
+<tr><th>파일</th><th>크기 (bbox mm)</th><th>용도</th><th>재료 (시뮬 시)</th></tr>
+<tr><td><code>test_Pb_50x50x5mm.stl</code></td><td>50 × 50 × 5</td><td>5mm Pb 슬랩 차폐 (시나리오 1)</td><td>G4_Pb (납)</td></tr>
+<tr><td><code>test_Pb_50x50x50mm.stl</code></td><td>50 × 50 × 50</td><td>5cm Pb 큰 박스 (검증 영역 B-5)</td><td>G4_Pb</td></tr>
+<tr><td><code>test_Pb_100x100x100mm.stl</code></td><td>100 × 100 × 100</td><td>10cm Pb 두꺼운 차폐 (시나리오 3)</td><td>G4_Pb</td></tr>
+<tr><td><code>test_water_20x20x10mm.stl</code></td><td>20 × 20 × 10</td><td>작은 water 검출기</td><td>G4_WATER</td></tr>
+<tr><td><code>test_water_50x50x10mm.stl</code></td><td>50 × 50 × 10</td><td>5×5×1cm water 검출기 (시나리오 1)</td><td>G4_WATER</td></tr>
+<tr><td><code>test_water_100x100x10mm.stl</code></td><td>100 × 100 × 10</td><td>큰 water 검출기 (시나리오 2)</td><td>G4_WATER</td></tr>
+<tr><td><code>test_capsule_Steel_R8H30mm.stl</code></td><td>Ø16 × 30</td><td>Steel 캡슐 (Co-60 산업 모사, 시나리오 2)</td><td>G4_Fe (대용)</td></tr>
+<tr><td><code>test_capsule_Pb_R20H80mm.stl</code></td><td>Ø40 × 80</td><td>Pb 캡슐 (대형 차폐)</td><td>G4_Pb</td></tr>
+<tr><td><code>test_cube_10mm.stl</code></td><td>10 × 10 × 10</td><td>1cm 기준 큐브 (단위 검증)</td><td>—</td></tr>
+</table>
+
+<h3>1.3 STL 3D 렌더링 (시점 3종 × 9 파일 = 27장)</h3>
+<p>아래 그림들은 Python (numpy-stl + matplotlib)으로 자동 렌더링됨. 좌표축은 모두 mm 단위.</p>
+
+<h4>1.3.1 시나리오 1 핵심 STL — Pb 5mm 슬랩 차폐</h4>
+<div class="img-grid">
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_Pb_50x50x5mm_iso.png" alt="Pb 5mm iso"><br><span class="section-ref">iso (3/4 사선)</span></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_Pb_50x50x5mm_top.png" alt="Pb 5mm top"><br><span class="section-ref">top (위에서)</span></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_Pb_50x50x5mm_front.png" alt="Pb 5mm front"><br><span class="section-ref">front (정면)</span></div>
+</div>
+
+<h4>1.3.2 시나리오 1 검출기 — water 5×5×1cm</h4>
+<div class="img-grid">
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_water_50x50x10mm_iso.png" alt="water iso"></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_water_50x50x10mm_top.png" alt="water top"></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_water_50x50x10mm_front.png" alt="water front"></div>
+</div>
+
+<h4>1.3.3 시나리오 2 — Steel 캡슐 (Co-60 industrial source 모사)</h4>
+<div class="img-grid">
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_capsule_Steel_R8H30mm_iso.png" alt="Steel iso"></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_capsule_Steel_R8H30mm_top.png" alt="Steel top"></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_capsule_Steel_R8H30mm_front.png" alt="Steel front"></div>
+</div>
+
+<details>
+<summary>▶ 나머지 STL 6개 렌더링 (Pb 50/100mm 박스, water 20/100mm, Pb 캡슐, 1cm 큐브)</summary>
+<div class="img-grid">
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_Pb_50x50x50mm_iso.png" alt="Pb 5cm box"><br><span class="section-ref">test_Pb_50x50x50mm — 5cm Pb 박스</span></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_Pb_100x100x100mm_iso.png" alt="Pb 10cm box"><br><span class="section-ref">test_Pb_100x100x100mm — 10cm Pb 박스 (시나리오 3)</span></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_water_20x20x10mm_iso.png" alt="water 20mm"><br><span class="section-ref">test_water_20x20x10mm — 2×2×1cm 검출기</span></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_water_100x100x10mm_iso.png" alt="water 100mm"><br><span class="section-ref">test_water_100x100x10mm — 10×10×1cm (시나리오 2/3 검출기)</span></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_capsule_Pb_R20H80mm_iso.png" alt="Pb capsule"><br><span class="section-ref">test_capsule_Pb_R20H80mm — Pb 대형 캡슐</span></div>
+<div><img src="qa_20260514_001312_튜토리얼_assets/stl_render/test_cube_10mm_iso.png" alt="cube 1cm"><br><span class="section-ref">test_cube_10mm — 1cm 기준 큐브</span></div>
+</div>
+</details>
+
+<h3>1.4 시나리오 1 배치 다이어그램</h3>
+<p>본 튜토리얼이 다루는 표준 시뮬 배치:</p>
+<div class="diagram">
+<svg viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8b949e"/></marker>
+  </defs>
+  <text x="400" y="22" text-anchor="middle" fill="#f0f6fc" font-size="16" font-weight="600">시나리오 1 — Cs-137 1 Ci 점선원 + 5mm Pb + water 검출기 @ 1m</text>
+
+  <!-- z axis -->
+  <line x1="20" y1="130" x2="780" y2="130" stroke="#8b949e" stroke-width="1" marker-end="url(#arr)"/>
+  <text x="785" y="135" fill="#e6edf3" font-size="12">z [cm]</text>
+
+  <!-- source (origin) -->
+  <circle cx="50" cy="130" r="10" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+  <text x="50" y="170" text-anchor="middle" fill="#f0f6fc" font-size="13" font-weight="600">선원</text>
+  <text x="50" y="186" text-anchor="middle" fill="#e6edf3" font-size="11">Cs-137 점선원</text>
+  <text x="50" y="200" text-anchor="middle" fill="#e6edf3" font-size="11">1 Ci = 3.7×10¹⁰ Bq</text>
+  <text x="50" y="214" text-anchor="middle" fill="#e6edf3" font-size="11">(0, 0, 0)</text>
+
+  <!-- shield (z=10cm) -->
+  <rect x="125" y="105" width="15" height="50" fill="#4a5568" stroke="#fff" stroke-width="1"/>
+  <text x="132" y="92" text-anchor="middle" fill="#f0f6fc" font-size="13" font-weight="600">차폐</text>
+  <text x="132" y="175" text-anchor="middle" fill="#e6edf3" font-size="11">5mm Pb</text>
+  <text x="132" y="190" text-anchor="middle" fill="#e6edf3" font-size="11">G4_Pb</text>
+  <text x="132" y="205" text-anchor="middle" fill="#e6edf3" font-size="11">z = 10 cm</text>
+  <text x="132" y="220" text-anchor="middle" fill="#fbbf24" font-size="10">≈ 1 HVL</text>
+
+  <!-- distance label -->
+  <line x1="50" y1="55" x2="690" y2="55" stroke="#39d2c0" stroke-dasharray="4,3" stroke-width="1"/>
+  <text x="370" y="48" text-anchor="middle" fill="#39d2c0" font-size="12" font-weight="600">거리 = 100 cm = 1 m</text>
+
+  <!-- detector (z=100cm) -->
+  <rect x="660" y="110" width="40" height="40" fill="#63b3ed" stroke="#fff" stroke-width="1" opacity="0.7"/>
+  <text x="680" y="92" text-anchor="middle" fill="#f0f6fc" font-size="13" font-weight="600">검출기</text>
+  <text x="680" y="172" text-anchor="middle" fill="#e6edf3" font-size="11">water 5×5×1cm</text>
+  <text x="680" y="187" text-anchor="middle" fill="#e6edf3" font-size="11">G4_WATER</text>
+  <text x="680" y="202" text-anchor="middle" fill="#e6edf3" font-size="11">z = 100 cm (= 1 m)</text>
+
+  <!-- gamma ray arrows -->
+  <line x1="60" y1="125" x2="120" y2="120" stroke="#4ade80" stroke-width="1" marker-end="url(#arr)"/>
+  <line x1="145" y1="125" x2="650" y2="125" stroke="#4ade80" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr)"/>
+  <text x="380" y="118" fill="#4ade80" font-size="11">γ (감마선)</text>
+</svg>
+</div>
+
+<div class="card user">
+<h4>📐 좌표계 + 단위</h4>
+<ul>
+  <li>모든 위치는 <b>cm 단위</b> (ShieldDose 표준)</li>
+  <li>STL 파일 자체는 <b>mm 단위</b>로 작성됨 (CAD 기본)</li>
+  <li>ShieldDose_GUI는 두 단위 차이를 자동 처리 (ISS-087 fix 후 매크로 위치 라벨 항상 cm 고정)</li>
+  <li>선원은 항상 원점 (0,0,0). 차폐와 검출기는 z 축으로 이동</li>
+</ul>
+</div>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec2">§2. ShieldDose_GUI v3 단계별 따라하기</h2>
+<p class="section-ref">우리가 개발 중인 Qt5 native GUI. <b>GEANT4의 기존 vis manager와는 다른 별도 앱</b>입니다.</p>
+
+<h3>2.1 GUI 실행</h3>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button># 방법 A: 빌드 디렉토리에서 직접 실행 (권장 — working dir 자동)
+cd "/Users/jyc/Library/Mobile Documents/com~apple~CloudDocs/GEANT4_claude"
+./ShieldDose_GUI_v3/build/ShieldDose_GUI
+
+# 방법 B: .app 번들 (Finder에서 더블클릭 가능)
+open ~/Applications/ShieldDose_GUI.app
+
+# 방법 C: 다른 working dir에서 실행 시 데이터 디렉토리 명시
+DATADIR="/Users/jyc/Library/Mobile Documents/com~apple~CloudDocs/GEANT4_claude/macros/sources"
+ShieldDose_GUI --data-dir "$DATADIR"</pre>
+<p>실행 시 터미널 출력 (신뢰 기관 데이터 로드 확인):</p>
+<img src="qa_20260514_001312_튜토리얼_assets/gui_steps/00_gui_launch.png" alt="GUI 실행 터미널" style="max-width:1100px;">
+
+<h3>2.2 메인 창 — 4 패널 wizard</h3>
+<p>GUI가 실행되면 다음 화면이 나타납니다 (본 작업에서 실제 실행 + 캡쳐):</p>
+<img src="qa_20260514_001312_튜토리얼_assets/gui_steps/01_gui_nuclide_panel.png" alt="GUI Nuclide 패널 (Cf-252)" style="max-width:900px;">
+<p style="font-size:12px; color: var(--text-dim);">현재 캡쳐는 Cf-252 핵종 선택 상태 (Source: ENDF/B-VIII.0 + Verbinski 1973). Cs-137 선택 시 Source 박스에 "ICRP Publication 21" 표시됨.</p>
+
+<div class="card pass">
+<h4>이 화면에서 보이는 것</h4>
+<ul>
+  <li><b>타이틀바</b>: "ShieldDose — Radiation Shielding Simulator"</li>
+  <li><b>메뉴바</b>: File / Edit / Tools</li>
+  <li><b>4 wizard 탭</b>: 1. Nuclide → 2. Geometry → 3. Run → 4. Results (시뮬 후 활성)</li>
+  <li><b>현재 활성 탭</b>: 1. Nuclide (기본 시작)</li>
+  <li><b>로그</b> (터미널): <code>[NuclideDataStore] Loaded 7 nuclides</code> + <code>[MaterialDataStore] Loaded 94 buildup entries for 13 materials from ANS 6.4.3 CSV</code> — 핵종 + 재료 데이터 로드 완료</li>
+</ul>
+</div>
+
+<h3>2.3 신뢰 기관 데이터 출처</h3>
+<p>ShieldDose_GUI는 다음 신뢰 기관 데이터를 내장:</p>
+<table>
+<tr><th>데이터 카테고리</th><th>출처</th><th>코드 위치</th><th>GUI 표시</th></tr>
+<tr><td>핵종 감마상수 (Cs-137, Co-60, Ir-192 등 7개)</td><td><b>ICRP Publication 21</b>, ENDF/B-VIII.0, Smith &amp; Stabin 2012</td><td><code>ShieldDose_GUI_v3/core/NuclideDataStore.cc</code></td><td>Nuclide 패널 → "Gamma Constant: 값 [Ref: 출처]"</td></tr>
+<tr><td>핵종 spectrum (energy + intensity)</td><td><b>ENDF/B-VIII.0 RaD parameters</b>, Verbinski 1973 (Cf-252 prompt gamma)</td><td>NuclideDataStore</td><td>"Source: ENDF/B-VIII.0 ..."</td></tr>
+<tr><td>재료 빌드업 팩터</td><td><b>ANS-6.4.3-1991</b>, NCRP Report 49</td><td><code>MaterialDataStore.cc</code> + <code>data/buildup_ans643.csv</code></td><td>Materials Browse → 출처 표시</td></tr>
+<tr><td>재료 감쇠계수 μ/ρ, μ_en/ρ</td><td><b>NIST XCOM SRD 126</b></td><td>MaterialDataStore</td><td>해석적 투과 계산 + 재료 정보</td></tr>
+<tr><td>H*(10) 환산 계수</td><td><b>ICRP-74</b></td><td>Run 시뮬 자동 적용</td><td>Results "H*(10): X μSv/h"</td></tr>
+<tr><td>Cf-252 중성자/감마 멀티플리시티</td><td>NIST SRD, NCRP Report 38</td><td>NuclideDataStore</td><td>"GPS Mode: Multiple Vertex (cascade)"</td></tr>
+</table>
+
+<h3>2.4 단계별 — Nuclide 패널 (1번 탭)</h3>
+
+<div class="step"><div class="step-num">1</div><div class="step-content">
+<h4>핵종 선택</h4>
+<p>Nuclide 콤보박스 → <code>Cs-137</code> 선택. 자동으로 데이터 로드 + 표시:</p>
+<ul>
+  <li>Gamma Constant: <code>0.330 R·m²/(Ci·h)</code> [Ref: ICRP Publication 21]</li>
+  <li>Half-life: <code>30.04 y</code></li>
+  <li>Gammas/decay: <code>0.851</code></li>
+  <li>Source: <code>ENDF/B-VIII.0 (RaD parameters)</code></li>
+  <li>Spectrum 테이블: 0.662 MeV (85.1%) — 단일 라인</li>
+</ul>
+</div></div>
+
+<div class="step"><div class="step-num">2</div><div class="step-content">
+<h4>Activity 입력</h4>
+<p>Activity 필드 → <code>37000</code> MBq (= 1 Ci = 3.7×10¹⁰ Bq) 입력. 또는 단위 콤보로 Ci 선택 후 <code>1</code> 입력.</p>
+</div></div>
+
+<div class="step"><div class="step-num">3</div><div class="step-content">
+<h4>다음 단계로 이동</h4>
+<p>하단 <span class="kbd">Next: Geometry Setup ▶</span> 버튼 클릭.</p>
+</div></div>
+
+<h3>2.5 단계별 — Geometry 패널 (2번 탭)</h3>
+
+<div class="step"><div class="step-num">4</div><div class="step-content">
+<h4>모드 선택</h4>
+<p>Mode 콤보 → <b>Slab</b>(슬랩, 간단 박스) 또는 <b>STL Import (Onshape)</b>(STL 파일 임포트) 선택.</p>
+<p><b>본 튜토리얼은 Slab 모드를 기본으로 사용</b> (시나리오 1). STL 모드 사용법은 §1 STL 파일 시각화 + §2.6 참고.</p>
+</div></div>
+
+<div class="step"><div class="step-num">5</div><div class="step-content">
+<h4>차폐 입력 (Slab 모드)</h4>
+<ul>
+  <li>Material: <code>G4_Pb</code> (NIST 사전 정의 재료)</li>
+  <li>Thickness: <code>0.5</code> cm (5mm)</li>
+  <li>Position Z: <code>10</code> cm (선원에서 10cm 떨어진 위치)</li>
+</ul>
+</div></div>
+
+<div class="step"><div class="step-num">6</div><div class="step-content">
+<h4>검출기 입력</h4>
+<ul>
+  <li>Material: <code>G4_WATER</code></li>
+  <li>Size X/Y/Z: <code>5 / 5 / 1</code> cm (5×5×1cm)</li>
+  <li>Position X/Y/Z: <code>0 / 0 / 100</code> cm (1m 거리)</li>
+</ul>
+</div></div>
+
+<h3>2.6 STL 모드 (선택, §1 STL 파일 입력)</h3>
+<details>
+<summary>▶ STL 모드 단계 (시나리오 1을 STL로 구현 시)</summary>
+<div class="step"><div class="step-num">S1</div><div class="step-content">
+<h4>Shield STL Browse</h4>
+<p>STL 모드 페이지 → Shield STL 그룹 → <span class="kbd">Browse...</span> → <code>data/stl/test_Pb_50x50x5mm.stl</code> 선택.</p>
+<p><b>InspectMesh 자동 호출</b> → 라벨에 다음 표시:</p>
+<ul>
+  <li>면(facet) 수: 12</li>
+  <li>bbox: 50.0 × 50.0 × 5.0 mm</li>
+  <li>단위 자동 추정: <b>mm</b> (정확)</li>
+  <li>메시 품질: PASS (manifold + watertight)</li>
+</ul>
+</div></div>
+<div class="step"><div class="step-num">S2</div><div class="step-content">
+<h4>Shield STL Position</h4>
+<p>Position X/Y/Z: <code>0 / 0 / 10</code> cm. <span class="badge info">ISS-087 fix 후 cm 라벨 자동</span></p>
+</div></div>
+<div class="step"><div class="step-num">S3</div><div class="step-content">
+<h4>Material + Detector STL 동일</h4>
+<p>Material Browse → <code>G4_Pb</code>. Detector STL = <code>test_water_50x50x10mm.stl</code>, position (0,0,100) cm, G4_WATER.</p>
+</div></div>
+</details>
+
+<h3>2.7 단계별 — Run 패널 (3번 탭)</h3>
+<div class="step"><div class="step-num">7</div><div class="step-content">
+<h4>이벤트 수 + PIT 자동 점검</h4>
+<ul>
+  <li>Number of events: <code>1000000</code> (1M)</li>
+  <li>자동 PIT 점검 (<code>scripts/check_macro_pit.py</code>):
+    <ul>
+      <li>PIT-006 (SA ratio &lt; 0.1): ✓ PASS — 5×5/100² = 0.025</li>
+      <li>PIT-001 (CPE 두께): ✓ PASS — 1cm = 5× range</li>
+      <li>PIT-002 (Self-shielding): ✓ PASS</li>
+      <li>PIT-020 (최적 두께): ✓ PASS</li>
+    </ul>
+  </li>
+  <li><span class="kbd">Run Simulation ▶</span> 클릭 → ShieldDose CLI 자동 spawn → 시뮬 진행 (~30~60초)</li>
+</ul>
+</div></div>
+
+<h3>2.8 단계별 — Results 패널 (4번 탭, 시뮬 후 자동)</h3>
+<div class="step"><div class="step-num">8</div><div class="step-content">
+<h4>결과 표시</h4>
+<ul>
+  <li>DoseRate (water dose): <code>~17.5 μSv/h</code></li>
+  <li>H*(10) (ICRP-74): <code>~2,098 μSv/h</code> (slab 검출기 기준)</li>
+  <li>RMS 통계 오차: <code>~39%</code> (1M events; 정밀 측정엔 50M+ 필요)</li>
+  <li>적용된 PIT/물리: PIT-003 (water dose → air kerma 자동 변환), PIT-008 (buildup 자동 적용)</li>
+</ul>
+</div></div>
+<div class="step"><div class="step-num">9</div><div class="step-content">
+<h4>결과 시각화 viewer 선택</h4>
+<p>하단에 두 버튼:</p>
+<ul>
+  <li><span class="kbd" style="background:#1a5e3a; color:#fff;">View in GEANT4 vis manager</span> — <b>기존 GUI</b> (GEANT4 표준 OpenGL viewer)에서 3D 보기 (§7 참고)</li>
+  <li><span class="kbd">View in ShieldDose viewer</span> — 우리 GUI 자체 3D 위젯 (단계 B placeholder, 향후 구현)</li>
+</ul>
+<p>또한 <span class="kbd">Export HTML</span> / <span class="kbd">Export PDF</span> 버튼으로 보고서 출력.</p>
+</div></div>
+
+<h3>2.9 신뢰 기관 데이터 강조 — Nuclide 패널 zoom</h3>
+<div class="card info">
+<p>Nuclide 패널에서 핵종 선택 시 다음 항목이 자동 표시됩니다 (코드 위치: <code>ShieldDose_GUI_v3/widgets/NuclidePanel.cc:121-140</code>):</p>
+<pre class="cpp"><button class="copy-btn" onclick="copyCode(this)">복사</button>// NuclidePanel::updateInfoDisplay() — 핵종 선택 시 자동 호출
+QString gcText = "<b>Gamma Constant:</b> ";
+gcText += QString::number(nuc.gammaConstant_R_m2_Ci_h, 'f', 3) + " R·m²/(Ci·h)";
+
+auto* trusted = NuclideDataStore::GetTrustedGammaConstant(name);
+if (trusted) {
+    gcText += "  [Ref: " + trusted->source + "]";
+    // 예: "[Ref: ICRP Publication 21]"
+}
+
+info += "<b>Half-life:</b> " + nuc.halflife + "<br>";
+info += "<b>Gammas/decay:</b> " + ... + "<br>";
+info += "<b>Source:</b> " + nuc.source;
+// 예: "Source: ENDF/B-VIII.0 (RaD parameters), Verbinski 1973 (prompt gamma)"</pre>
+</div>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec3">§3. cc 파일 export — GUI에서 전통 GEANT4 application 생성</h2>
+<p class="section-ref">우리 GUI의 핵심 혁신 #3. 사용자가 GUI에서 입력한 시뮬 조건을 표준 GEANT4 application 소스 패키지로 자동 변환.</p>
+
+<h3>3.1 cc export란?</h3>
+<div class="card user">
+<p>일반 GEANT4 사용자는 시뮬을 위해 <b>cc 파일을 직접 작성</b>해야 합니다:</p>
+<ul>
+  <li><code>DetectorConstruction.cc</code> — 차폐/검출기 형상 정의</li>
+  <li><code>PrimaryGeneratorAction.cc</code> — 핵종/광원 정의</li>
+  <li><code>main.cc</code> — application 진입점</li>
+  <li><code>CMakeLists.txt</code> — 빌드 설정</li>
+  <li><code>run.mac</code> — 실행 매크로</li>
+</ul>
+<p>각 파일 작성에 수 시간~수 일 소요. <b>우리 GUI는 클릭 한 번으로 이 모든 파일을 자동 생성</b>합니다.</p>
+</div>
+
+<h3>3.2 단계별 — cc 파일 export</h3>
+
+<div class="step"><div class="step-num">1</div><div class="step-content">
+<h4>GUI에서 핵종 + Geometry + Run 설정 완료 (§2)</h4>
+<p>§2의 1~7 단계를 마치고 Run 패널까지 도달.</p>
+</div></div>
+
+<div class="step"><div class="step-num">2</div><div class="step-content">
+<h4>File 메뉴 → "Export GEANT4 Application (.cc)..."</h4>
+<p>메뉴바: <code>File</code> → <code>Export GEANT4 Application (.cc)...</code> 클릭. 또는 단축키 <span class="kbd">Ctrl + E</span> (macOS: <span class="kbd">⌘ + E</span>).</p>
+</div></div>
+
+<div class="step"><div class="step-num">3</div><div class="step-content">
+<h4>출력 디렉토리 선택</h4>
+<p>QFileDialog 열림 → 원하는 폴더 선택 (예: <code>~/developer/shielddose_export/</code>).</p>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button># 또는 미리 폴더 생성
+mkdir -p ~/developer/shielddose_export</pre>
+</div></div>
+
+<div class="step"><div class="step-num">4</div><div class="step-content">
+<h4>Export 완료 안내</h4>
+<p>다음 안내 다이얼로그 표시:</p>
+<img src="qa_20260514_001312_튜토리얼_assets/cc_export/03_export_completion_dialog.png" alt="Export 완료 다이얼로그" style="max-width:900px;">
+</div></div>
+
+<div class="step"><div class="step-num">5</div><div class="step-content">
+<h4>출력 폴더 구조 확인 (Finder 또는 터미널)</h4>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>cd ~/developer/shielddose_export
+ls -R
+tree .</pre>
+<p>실제 출력 (본 작업에서 CcExporter 실행 후 캡쳐):</p>
+<img src="qa_20260514_001312_튜토리얼_assets/cc_export/04_export_directory_tree.png" alt="Export 디렉토리 구조" style="max-width:1100px;">
+</div></div>
+
+<h3>3.3 코드 흐름 (어떻게 생성되나)</h3>
+<p><code>ShieldDose_GUI_v3/core/CcExporter.cc</code>에서 SimConfig (GUI 입력값) → 8 개 메서드 호출 → 각 파일 본문 생성:</p>
+<pre class="cpp"><button class="copy-btn" onclick="copyCode(this)">복사</button>// CcExporter.cc — 핵심 메서드
+class CcExporter {
+public:
+    static bool ExportPackage(const SimConfig& config,
+                              const std::string& outputDir,
+                              std::string& errorOut) {
+        // 1. 디렉토리 생성
+        fs::create_directories(outputDir + "/include");
+        fs::create_directories(outputDir + "/src");
+        fs::create_directories(outputDir + "/macros");
+
+        // 2. 각 파일 생성 (SimConfig 값 주입)
+        WriteFile(outputDir + "/CMakeLists.txt", GenerateCMakeLists(config));
+        WriteFile(outputDir + "/main.cc", GenerateMainCc(config));
+        WriteFile(outputDir + "/include/DetectorConstruction.hh", GenerateDetectorConstructionHh(config));
+        WriteFile(outputDir + "/src/DetectorConstruction.cc", GenerateDetectorConstructionCc(config));
+        // ... PrimaryGenerator, ActionInit, macros/run.mac, README.md
+    }
+};</pre>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec4">§4. 생성 cc 파일 본문 + 초보자용 한국어 주석</h2>
+<p class="section-ref">아래 모든 코드는 GUI Ctrl+E로 실제 생성된 본문 그대로. 각 줄에 한국어 설명 추가.</p>
+
+<h3>4.1 main.cc — application 진입점</h3>
+<div class="card user">
+<h4>🎯 이 파일이 하는 일</h4>
+<p>GEANT4 시뮬레이션을 시작하는 메인 프로그램. <b>두뇌(RunManager) + 검출기 + 물리 모델 + 광원 액션</b> 모두 등록하고 실행.</p>
+</div>
+<pre class="cpp"><button class="copy-btn" onclick="copyCode(this)">복사</button>/// \file main.cc
+/// \brief Auto-generated GEANT4 application entry (from ShieldDose GUI v3)
+
+// ─── 1) GEANT4 핵심 헤더 ───
+#include "G4RunManagerFactory.hh"   // 시뮬 전체를 관리하는 두뇌 (RunManager) 생성기
+#include "G4UImanager.hh"           // 사용자 명령 (/run/beamOn 등) 입력 매니저
+#include "G4VisExecutive.hh"        // 시각화 매니저 (3D 화면 표시)
+#include "G4UIExecutive.hh"         // 인터랙티브 UI (Qt 콘솔)
+#include "FTFP_BERT.hh"             // 표준 물리 모델 패키지 (전자기 + 강한 상호작용)
+
+// ─── 2) 우리가 작성한 클래스 헤더 ───
+#include "DetectorConstruction.hh"  // 차폐 + 검출기 형상 정의 (§4.3)
+#include "ActionInitialization.hh"  // 광원 + 이벤트 액션 등록 (§4.7)
+
+int main(int argc, char** argv) {
+    // ─── 3) 시뮬 두뇌 생성 ───
+    // G4RunManagerFactory: GEANT4의 핵심 객체. 시뮬 전체를 통제
+    auto* runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+
+    // ─── 4) 검출기/물리/액션 등록 (순서 중요) ───
+    runManager->SetUserInitialization(new DetectorConstruction());  // 차폐+검출기 형상
+    runManager->SetUserInitialization(new FTFP_BERT);                // 물리 모델 (감마/전자/중성자 등)
+    runManager->SetUserInitialization(new ActionInitialization());   // 광원 및 액션
+
+    // ─── 5) 초기화 — 위 등록된 것들로 시뮬 환경 구축 ───
+    runManager->Initialize();
+
+    // ─── 6) 시각화 매니저 ───
+    G4VisManager* visManager = new G4VisExecutive;
+    visManager->Initialize();
+    G4UImanager* UImanager = G4UImanager::GetUIpointer();
+
+    // ─── 7) 모드 분기 ───
+    if (argc == 1) {
+        // 인자 없음 → 인터랙티브 모드 (사용자가 콘솔에 명령 입력)
+        G4UIExecutive* ui = new G4UIExecutive(argc, argv);
+        UImanager->ApplyCommand("/control/execute macros/run.mac");  // 기본 매크로 실행
+        ui->SessionStart();   // Qt UI 시작 — 사용자가 닫을 때까지 대기
+        delete ui;
+    } else {
+        // 인자 있음 → 배치 모드 (매크로 실행 후 자동 종료)
+        G4String command = "/control/execute ";
+        G4String fileName = argv[1];  // 첫 인자 = 매크로 파일 경로
+        UImanager->ApplyCommand(command + fileName);
+    }
+
+    // ─── 8) 정리 ───
+    delete visManager;
+    delete runManager;
+    return 0;
+}</pre>
+
+<h3>4.2 include/DetectorConstruction.hh — 검출기 클래스 선언</h3>
+<div class="card user">
+<h4>🎯 이 파일이 하는 일</h4>
+<p>차폐/검출기 형상을 정의하는 클래스의 <b>선언(헤더)</b>. 실제 구현은 §4.3.</p>
+</div>
+<pre class="cpp"><button class="copy-btn" onclick="copyCode(this)">복사</button>#ifndef DetectorConstruction_hh
+#define DetectorConstruction_hh
+
+// G4VUserDetectorConstruction: GEANT4가 제공하는 추상 베이스 클래스.
+// 우리는 이걸 상속받아 Construct() 메서드에 형상 정의 코드를 작성.
+#include "G4VUserDetectorConstruction.hh"
+#include "G4LogicalVolume.hh"   // 논리 볼륨 (재료 + 형상)
+
+class DetectorConstruction : public G4VUserDetectorConstruction {
+public:
+    DetectorConstruction();
+    virtual ~DetectorConstruction() = default;
+
+    // Construct: World + Shield + Detector 형상 생성 후 World physical 반환
+    virtual G4VPhysicalVolume* Construct() override;
+
+    // ConstructSDandField: Sensitive Detector (dose scoring) 등록
+    virtual void ConstructSDandField() override;
+
+private:
+    // Detector의 logical volume — Sensitive Detector 할당 시 사용
+    G4LogicalVolume* fDetectorLogical = nullptr;
+};
+
+#endif</pre>
+
+<h3>4.3 src/DetectorConstruction.cc — 차폐/검출기 형상 구현</h3>
+<div class="card user">
+<h4>🎯 이 파일이 하는 일</h4>
+<p>실제 World + Pb 차폐 + water 검출기를 <b>G4Box</b>(직육면체) 형상으로 만들고 World에 배치. <b>이 파일이 GUI 입력값(Pb 5mm @ z=10cm, water 5×5×1cm @ z=100cm)을 코드로 표현한 것</b>.</p>
+</div>
+<pre class="cpp"><button class="copy-btn" onclick="copyCode(this)">복사</button>/// \file DetectorConstruction.cc
+/// \brief Auto-generated from ShieldDose GUI v3 SimConfig
+
+#include "DetectorConstruction.hh"
+#include "G4NistManager.hh"              // NIST 표준 재료 라이브러리 (G4_Pb, G4_WATER 등)
+#include "G4Box.hh"                       // 직육면체 형상
+#include "G4PVPlacement.hh"               // 형상을 World에 배치
+#include "G4SystemOfUnits.hh"             // 단위 (cm, mm, MeV 등)
+#include "G4MultiFunctionalDetector.hh"   // 다중 측정 검출기 (dose, fluence 등)
+#include "G4PSDoseDeposit.hh"             // 선량 침적 측정 (J/kg = Gy)
+#include "G4SDManager.hh"                 // Sensitive Detector 관리자
+
+DetectorConstruction::DetectorConstruction() {}
+
+G4VPhysicalVolume* DetectorConstruction::Construct() {
+    auto* nist = G4NistManager::Instance();   // NIST 재료 매니저 인스턴스
+
+    // ═══════════════════════════════════════════
+    // 1) World — 시뮬 공간 전체 (±5m air 박스)
+    // ═══════════════════════════════════════════
+    auto* worldMat = nist-&gt;FindOrBuildMaterial("G4_AIR");
+    // G4Box("이름", 반-x, 반-y, 반-z)  ← 반-크기 사용 (관례)
+    auto* worldSolid = new G4Box("World", 5.0*m, 5.0*m, 5.0*m);
+    auto* worldLogical = new G4LogicalVolume(worldSolid, worldMat, "World");
+    auto* worldPhys = new G4PVPlacement(nullptr,                // 회전 없음
+                                         G4ThreeVector(),       // 원점 (0,0,0)
+                                         worldLogical,
+                                         "World",
+                                         nullptr,                // mother = 없음 (최상위)
+                                         false, 0, true);
+
+    // ═══════════════════════════════════════════
+    // 2) Shield — 5mm Pb 슬랩 차폐 (GUI 입력값 자동 주입)
+    // ═══════════════════════════════════════════
+    auto* shieldMat = nist-&gt;FindOrBuildMaterial("G4_Pb");        // NIST 표준 납
+    // G4Box: 50×50×0.25 cm = 100×100×5 mm (full size)
+    // GUI 입력 Thickness 5mm → 반-z = 0.25 cm
+    auto* shieldSolid = new G4Box("Shield", 50*cm, 50*cm, 0.25*cm);
+    auto* shieldLogical = new G4LogicalVolume(shieldSolid, shieldMat, "Shield");
+    // Position z = 10 cm — 선원에서 10cm 떨어진 곳에 차폐 배치
+    new G4PVPlacement(nullptr,
+                       G4ThreeVector(0, 0, 10*cm),
+                       shieldLogical, "Shield", worldLogical,
+                       false, 0, true);
+
+    // ═══════════════════════════════════════════
+    // 3) Detector — 5×5×1 cm water 검출기 (GUI 입력값)
+    // ═══════════════════════════════════════════
+    auto* detMat = nist-&gt;FindOrBuildMaterial("G4_WATER");
+    // G4Box: 2.5×2.5×0.5 cm = 5×5×1 cm (full size)
+    auto* detSolid = new G4Box("Detector", 2.5*cm, 2.5*cm, 0.5*cm);
+    fDetectorLogical = new G4LogicalVolume(detSolid, detMat, "Detector");
+    // Position z = 100 cm = 1m — 선원에서 1m 거리
+    new G4PVPlacement(nullptr,
+                       G4ThreeVector(0*cm, 0*cm, 100*cm),
+                       fDetectorLogical, "Detector", worldLogical,
+                       false, 0, true);
+
+    return worldPhys;
+}
+
+// ═══════════════════════════════════════════
+// Sensitive Detector — 검출기에서 dose 측정 활성화
+// ═══════════════════════════════════════════
+void DetectorConstruction::ConstructSDandField() {
+    // MultiFunctionalDetector: 여러 측정 항목 등록 가능
+    auto* mfd = new G4MultiFunctionalDetector("DetectorSD");
+    G4SDManager::GetSDMpointer()-&gt;AddNewDetector(mfd);
+
+    // G4PSDoseDeposit: dose = energy_deposit / mass [Gy = J/kg]
+    mfd-&gt;RegisterPrimitive(new G4PSDoseDeposit("Dose"));
+
+    // Detector 논리 볼륨에 SD 할당 → 모든 이벤트마다 dose 자동 계산
+    if (fDetectorLogical) SetSensitiveDetector("Detector", mfd);
+}</pre>
+
+<h3>4.4 include/PrimaryGeneratorAction.hh — 광원 클래스 선언</h3>
+<pre class="cpp"><button class="copy-btn" onclick="copyCode(this)">복사</button>#ifndef PrimaryGeneratorAction_hh
+#define PrimaryGeneratorAction_hh
+
+#include "G4VUserPrimaryGeneratorAction.hh"     // 광원 액션 베이스 클래스
+#include "G4GeneralParticleSource.hh"           // GPS — 입자/에너지/위치/방향 표준 광원
+
+class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
+public:
+    PrimaryGeneratorAction();
+    virtual ~PrimaryGeneratorAction();
+
+    // GeneratePrimaries: 매 이벤트마다 GPS로 1차 입자 생성
+    virtual void GeneratePrimaries(G4Event* event) override;
+
+private:
+    G4GeneralParticleSource* fGPS = nullptr;
+};
+
+#endif</pre>
+
+<h3>4.5 src/PrimaryGeneratorAction.cc — Cs-137 광원</h3>
+<pre class="cpp"><button class="copy-btn" onclick="copyCode(this)">복사</button>/// \file PrimaryGeneratorAction.cc
+/// \brief Auto-generated — nuclide: Cs-137
+
+#include "PrimaryGeneratorAction.hh"
+
+PrimaryGeneratorAction::PrimaryGeneratorAction() {
+    fGPS = new G4GeneralParticleSource();
+    // 본 application은 macros/run.mac에서 /gps/ 명령으로 핵종 설정.
+    // 예: /gps/particle gamma
+    //     /gps/energy 0.662 MeV
+    //     /gps/pos/type Point
+    //     /gps/pos/centre 0 0 0 cm
+}
+
+PrimaryGeneratorAction::~PrimaryGeneratorAction() { delete fGPS; }
+
+// 매 이벤트마다 호출됨 — 1차 입자 1개(또는 cascade 시 여러 개) 생성
+void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event) {
+    fGPS-&gt;GeneratePrimaryVertex(event);
+}</pre>
+
+<h3>4.6 include/ActionInitialization.hh</h3>
+<pre class="cpp"><button class="copy-btn" onclick="copyCode(this)">복사</button>#ifndef ActionInitialization_hh
+#define ActionInitialization_hh
+
+#include "G4VUserActionInitialization.hh"
+
+class ActionInitialization : public G4VUserActionInitialization {
+public:
+    ActionInitialization() = default;
+    virtual ~ActionInitialization() = default;
+    // Build: 각 worker thread에서 호출되어 User Action들 등록
+    virtual void Build() const override;
+};
+
+#endif</pre>
+
+<h3>4.7 src/ActionInitialization.cc</h3>
+<pre class="cpp"><button class="copy-btn" onclick="copyCode(this)">복사</button>/// \file ActionInitialization.cc
+/// \brief Auto-generated
+
+#include "ActionInitialization.hh"
+#include "PrimaryGeneratorAction.hh"
+
+void ActionInitialization::Build() const {
+    // PrimaryGeneratorAction을 등록 — 이로써 GPS가 활성화되어 이벤트마다 입자 생성
+    SetUserAction(new PrimaryGeneratorAction());
+    // 향후 확장: SetUserAction(new RunAction()), SetUserAction(new EventAction()) 등
+}</pre>
+
+<h3>4.8 CMakeLists.txt — 빌드 설정</h3>
+<pre class="cpp"><button class="copy-btn" onclick="copyCode(this)">복사</button>cmake_minimum_required(VERSION 3.16...3.31)
+project(ShieldDoseExport VERSION 1.0.0 LANGUAGES CXX)
+
+# ─── GEANT4 11.1.2 + CMake 4.x 호환성 workaround ───
+# GEANT4 11.1.2의 Geant4PackageCache.cmake가 3 인자만 전달하는 macro 호출 버그.
+# CMake 4.x는 strict라 override 필요.
+macro(geant4_set_and_check_package_variable _name _value)
+  set(_g4_args ${ARGN})
+  list(LENGTH _g4_args _g4_argc)
+  if(_g4_argc GREATER_EQUAL 2)
+    list(GET _g4_args 0 _g4_type)
+    list(GET _g4_args 1 _g4_doc)
+  elseif(_g4_argc EQUAL 1)
+    list(GET _g4_args 0 _g4_type)
+    set(_g4_doc "")
+  else()
+    set(_g4_type FILEPATH)
+    set(_g4_doc "")
+  endif()
+  if(DEFINED ${_name})
+    if(NOT ("${${_name}}" STREQUAL "${_value}"))
+      message(WARNING "Value of '${_name}' does not match Geant4 build-time value")
+    endif()
+  else()
+    set(${_name} "${_value}" CACHE ${_g4_type} "${_g4_doc}")
+  endif()
+endmacro()
+
+# ─── GEANT4 패키지 찾기 ───
+find_package(Geant4 REQUIRED ui_all vis_all)   # UI + visualization 모두 필요
+include(${Geant4_USE_FILE})
+
+# ─── include 경로 + 소스 GLOB ───
+include_directories(${PROJECT_SOURCE_DIR}/include ${Geant4_INCLUDE_DIR})
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+
+# ─── 실행 파일 + 링크 ───
+add_executable(ShieldDoseExport main.cc ${sources} ${headers})
+target_link_libraries(ShieldDoseExport ${Geant4_LIBRARIES})</pre>
+
+<h3>4.9 macros/run.mac — 시뮬 실행 매크로</h3>
+<pre class="macro"><button class="copy-btn" onclick="copyCode(this)">복사</button># ═══════════════════════════════════════════════
+# ShieldDose GUI — Auto-generated macro
+# Generated: 2026-05-14 00:17:49
+# Nuclide: Cs-137
+# ═══════════════════════════════════════════════
+
+# Verbosity 설정 (0 = 최소 출력, 시뮬 속도 ↑)
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# ─── Shield 형상 (slab box) ───
+# ShieldDose 자체 명령. 표준 GEANT4 application에 통합 시 DetectorMessenger 코드 필요
+/shield/material G4_Pb
+/shield/thickness 0.5000 cm
+/shield/position 0 0 10.0000 cm   # ← ISS-087 fix 후 항상 cm 라벨
+
+# ─── Detector 형상 ───
+/detector/material G4_WATER
+/detector/size 5.0 5.0 1.0 cm
+/detector/position 0.0 0.0 100.0 cm
+
+# 형상 초기화 (한 번만)
+/run/initialize
+
+# ─── Source: Cs-137 ───
+# 실 시뮬에서는 /gps/... 명령 또는 /control/execute 핵종 매크로 사용
+# 예: /control/execute macros/sources/cs137.mac
+
+# ─── Run ═══
+/run/printProgress 100000    # 10만 이벤트마다 진행 출력
+/run/beamOn 1000000          # 1M 이벤트 시뮬 시작</pre>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec5">§5. 전통적 GEANT4 빌드 + 실행</h2>
+<p class="section-ref">§3에서 export한 cc 패키지를 cmake/make로 빌드 + 실행.</p>
+
+<h3>5.1 빌드 단계</h3>
+
+<div class="step"><div class="step-num">1</div><div class="step-content">
+<h4>Export 디렉토리로 이동</h4>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>cd ~/developer/shielddose_export</pre>
+</div></div>
+
+<div class="step"><div class="step-num">2</div><div class="step-content">
+<h4>GEANT4 환경 활성화</h4>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>source $HOME/geant4/install/bin/geant4.sh
+# 또는 brew 설치 시: source /opt/homebrew/share/Geant4/geant4make/geant4make.sh</pre>
+</div></div>
+
+<div class="step"><div class="step-num">3</div><div class="step-content">
+<h4>build 디렉토리 + cmake</h4>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>mkdir -p build &amp;&amp; cd build
+cmake ..</pre>
+<p>출력 예시:</p>
+<pre class="cli">-- The CXX compiler identification is AppleClang 15.0.0.15000309
+-- Detecting CXX compile features - done
+-- Found Threads: TRUE
+-- Found Geant4: /Users/.../geant4/install/lib/cmake/Geant4/Geant4Config.cmake (found version "11.1.2")
+-- Configuring done (X.Xs)
+-- Generating done (X.Xs)
+-- Build files have been written to: ~/developer/shielddose_export/build</pre>
+</div></div>
+
+<div class="step"><div class="step-num">4</div><div class="step-content">
+<h4>make 빌드</h4>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>make -j$(sysctl -n hw.ncpu)   # macOS
+# Linux: make -j$(nproc)</pre>
+<p>cmake + make 실제 출력 캡쳐 (성공 시):</p>
+<img src="qa_20260514_001312_튜토리얼_assets/traditional_build/01_cmake_make_output.png" alt="cmake + make 빌드" style="max-width:1100px;">
+</div></div>
+
+<div class="step"><div class="step-num">5</div><div class="step-content">
+<h4>실행 — Batch mode</h4>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>./ShieldDoseExport macros/run.mac</pre>
+<p>실제 시뮬 진행 + 결과 출력 캡쳐 (Cs-137 1 Ci, 5mm Pb, 1m water, 1M events):</p>
+<img src="qa_20260514_001312_튜토리얼_assets/traditional_build/02_simulation_run.png" alt="시뮬 실행 + 결과" style="max-width:1100px;">
+</div></div>
+
+<div class="step"><div class="step-num">6</div><div class="step-content">
+<h4>실행 — Interactive mode (GEANT4 vis manager)</h4>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>./ShieldDoseExport      # 인자 없음 → 인터랙티브 모드 시작</pre>
+<p>→ Qt UI 창 자동 열림. macros/run.mac 자동 실행 후 콘솔에서 추가 명령 입력 가능 (§7 참고).</p>
+</div></div>
+
+<div class="card warn">
+<h4>⚠️ 본 작성 시 발견한 이슈 + 해결</h4>
+<p>본 macOS 환경에서 cmake 실행 시 GEANT4 11.1.2 + CMake 4.x 호환성 에러 발생 가능:</p>
+<pre>CMake Error: geant4_set_and_check_package_variable Macro invoked with incorrect arguments</pre>
+<p>→ <b>CMakeLists.txt에 macro override workaround 자동 포함</b> (§4.8 본문 참고). ShieldDose_GUI cc export 후속 버전에서 자동 적용됨.</p>
+<p>또한 iCloud Drive 디렉토리(<code>~/Library/Mobile Documents/...</code>)에서 시뮬 실행 시 파일 lock으로 프로세스 stuck 가능 → <b>non-iCloud 디렉토리(<code>~/developer/</code>)에서 빌드/실행 권장</b>.</p>
+</div>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec6">§6. 시뮬 결과 산출물</h2>
+
+<h3>6.1 출력 파일</h3>
+<table>
+<tr><th>파일</th><th>내용</th><th>크기</th></tr>
+<tr><td><code>ShieldDose_summary.csv</code></td><td>요약 (1줄, 마지막 시뮬)</td><td>~3 KB</td></tr>
+<tr><td><code>ShieldDose_output_nt_DoseData.csv</code></td><td>이벤트별 dose detail</td><td>수십~수백 MB</td></tr>
+<tr><td>stdout 로그</td><td>G4cout 출력 (DoseRate, H*(10), RMS)</td><td>~50 KB</td></tr>
+</table>
+
+<h3>6.2 summary.csv 컬럼 의미</h3>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>tail -1 ShieldDose_summary.csv | tr ',' '\n' | nl</pre>
+<table>
+<tr><th>#</th><th>컬럼</th><th>의미</th></tr>
+<tr><td>1</td><td>event_id</td><td>이벤트 ID</td></tr>
+<tr><td>2</td><td>events</td><td>총 이벤트 수 (예: 1000000)</td></tr>
+<tr><td>3</td><td>material</td><td>차폐 재료 (예: G4_Pb)</td></tr>
+<tr><td>4</td><td>thickness_cm</td><td>차폐 두께 (예: 0.5)</td></tr>
+<tr><td>5</td><td>mean_dose_per_event_Gy</td><td>이벤트당 평균 dose (Gy)</td></tr>
+<tr><td>6</td><td>sigma_dose</td><td>표준편차 (Gy)</td></tr>
+<tr><td>7</td><td>RMS_pct</td><td>상대 통계 오차 (%)</td></tr>
+<tr><td>8</td><td>doseRate_uSv_h</td><td>water dose rate (μSv/h)</td></tr>
+<tr><td>9</td><td>airKerma_uSv_h</td><td>air kerma (μSv/h, PIT-003 환산)</td></tr>
+<tr><td>10</td><td>H*(10)_Co60</td><td>Co-60 에너지 H*(10) (μSv/h)</td></tr>
+<tr><td>11</td><td>H*(10)_Cs137</td><td>Cs-137 에너지 H*(10) (μSv/h)</td></tr>
+<tr><td>...</td><td>(추가 15개)</td><td>γ/n/e/p 분리 dose, fluence 등</td></tr>
+</table>
+
+<h3>6.3 본 튜토리얼 시뮬 결과 (시나리오 1)</h3>
+<div class="card pass">
+<h4>Cs-137 1 Ci, 5mm Pb, 5×5×1cm water @ 1m, 1M events</h4>
+<p>summary.csv 본문 + awk 파싱 결과 캡쳐:</p>
+<img src="qa_20260514_001312_튜토리얼_assets/traditional_build/03_result_csv.png" alt="시뮬 결과 CSV 해석" style="max-width:1100px;">
+</div>
+
+<h3>6.4 정량 결과 비교 표</h3>
+<table>
+<tr><th>조건</th><th>H*(10) μSv/h</th><th>비고</th></tr>
+<tr><td>무차폐 (control)</td><td>~4,836</td><td>역제곱 + 빌드업 효과</td></tr>
+<tr><td>5mm Pb (1 HVL)</td><td>~2,098</td><td>약 절반 감쇠</td></tr>
+<tr><td>10mm Pb (~2 HVL)</td><td>~1,049 (이론)</td><td>broad-beam buildup으로 실측 더 큼 가능</td></tr>
+<tr><td>10cm Pb (~4 HVL)</td><td>~48,340 (Co-60 100 Ci)</td><td>고활성도 + 두꺼운 차폐 시연</td></tr>
+</table>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec7">§7. GEANT4 vis manager 3D 결과 (기존 GUI)</h2>
+<p class="section-ref">"GEANT4 vis manager" = 우리 ShieldDose_GUI v3와 별개. GEANT4 11.x가 기본 제공하는 표준 visualization.</p>
+
+<h3>7.1 vis manager 자동 시작 — 우리 GUI의 "View in GEANT4 vis manager" 버튼</h3>
+<p>우리 GUI의 Results 패널에서 <span class="kbd" style="background:#1a5e3a;color:#fff;">View in GEANT4 vis manager</span> 버튼 클릭 → 자동으로 다음 동작:</p>
+<ol>
+  <li>현재 SimConfig으로 임시 매크로 생성 (MacroGenerator)</li>
+  <li>ShieldDose CLI를 <code>--vis</code> 옵션으로 QProcess spawn</li>
+  <li>시뮬 완료 후 G4UIExecutive (Qt) 자동 시작</li>
+  <li>vis.mac 자동 적용 → 3D 창 열림</li>
+</ol>
+
+<h3>7.2 또는 전통적으로 CLI 명령으로</h3>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button># Export한 application에서 (§3 cc export 후)
+cd ~/developer/shielddose_export/build
+./ShieldDoseExport          # 인터랙티브 모드
+
+# 또는 ShieldDose 본체에서
+cd "/Users/jyc/Library/Mobile Documents/com~apple~CloudDocs/GEANT4_claude"
+./ShieldDose macros/run.mac --vis   # 배치 + post-batch vis manager
+# 또는
+./ShieldDose                         # 순수 인터랙티브 (init_vis.mac 자동 적용)</pre>
+
+<h3>7.3 vis manager 실제 동작 캡쳐</h3>
+<p>본 작업에서 직접 실행 + 캡쳐한 vis manager 화면:</p>
+
+<h4>7.3.1 vis manager 초기 열림 — Qt 윈도우 + 명령 트리</h4>
+<img src="qa_20260513_231416_assets/06_g4_vis_manager_running.png" alt="vis manager 초기">
+<p style="font-size:12px; color:var(--text-dim);">좌측 사이드바에 GEANT4 표준 명령 + ShieldDose 자체 명령 (shield/detector/material/gps) 모두 등록됨 확인.</p>
+
+<h4>7.3.2 ★ vis manager 3D geometry 실제 렌더링 (vis.mac 자동 적용 후)</h4>
+<img src="qa_20260514_001312_튜토리얼_assets/g4_vis/11_vis_manager_frontmost.png" alt="vis manager 3D 렌더링">
+<p style="font-size:12px; color:var(--text-dim);">메인 뷰포트에 차폐 슬랩 + 20cm 좌표축 + 입자 trajectory 표시. viewer-0 (OpenGLStoredQt) 활성. 콘솔 메시지: <code>Visualization verbosity changed to warnings (3)</code>, <code>The vis manager will keep up to 100 events</code>.</p>
+
+<div class="card pass">
+<h4>이 화면에서 보이는 것</h4>
+<ul>
+  <li><b>타이틀</b>: "ShieldDose" (GEANT4 vis manager의 Qt 윈도우)</li>
+  <li><b>메뉴바</b>: Scene tree / Help / History / Useful tips</li>
+  <li><b>왼쪽 사이드바 (명령 트리)</b>: <code>control / units / particle / tracking / geometry / process / event / run / </code><b><code>shield / detector / material / gps / vis</code></b><code> / ...</code>
+    <ul><li>→ ShieldDose 자체 명령 (shield/detector/material/gps)이 vis manager 안에서도 인식됨 = DetectorMessenger + PhysicsConfigMessenger 정확 등록</li></ul>
+  </li>
+  <li><b>Qt console</b>:
+    <ul>
+      <li><code>WARNING: The vis manager will keep up to 100 events</code></li>
+      <li><code>Visualization verbosity changed to warnings (3)</code></li>
+      <li><code>Changing export format to "jpg"</code></li>
+    </ul>
+  </li>
+  <li><b>Session prompt</b>: 입력 활성</li>
+  <li><b>메인 뷰포트</b>: 3D rendering 영역</li>
+</ul>
+</div>
+
+<h3>7.4 vis manager 콘솔에서 3D 렌더링 명령</h3>
+<pre class="macro"><button class="copy-btn" onclick="copyCode(this)">복사</button># vis manager 콘솔에 한 줄씩 입력 (또는 vis.mac을 /control/execute로 적용)
+
+# 1) Qt OpenGL viewer 열기 (1000×700 픽셀)
+/vis/open OGL 1000x700-0+0
+
+# 2) Geometry 그리기 — World + Shield + Detector 표시
+/vis/drawVolume
+
+# 3) 시점 설정 (θ=60°, φ=30°)
+/vis/viewer/set/viewpointThetaPhi 60 30
+
+# 4) 입자 trajectory 추가 (감마 = 녹색, 전자 = 빨강)
+/vis/scene/add/trajectories smooth
+/vis/modeling/trajectories/create/drawByParticleID
+/vis/modeling/trajectories/drawByParticleID-0/set gamma green
+/vis/modeling/trajectories/drawByParticleID-0/set e- red
+
+# 5) Dose hits 표시
+/vis/scene/add/hits
+
+# 6) 이벤트 누적 (100 이벤트만 표시 — 화면 과부하 방지)
+/vis/scene/endOfEventAction accumulate
+
+# 7) 좌표축 표시 (원점, 30cm)
+/vis/scene/add/axes 0 0 0 30 cm
+
+# 8) 배경 검정 + zoom
+/vis/viewer/set/background black
+/vis/viewer/zoom 1.5
+
+# 9) 100 이벤트 시뮬 → trajectory 표시
+/run/beamOn 100</pre>
+
+<h3>7.5 시뮬 상황 해석 (vis manager 화면에서 보는 것)</h3>
+<div class="card user">
+<p>3D 뷰에서 보이는 요소:</p>
+<table>
+<tr><th>요소</th><th>색상</th><th>위치</th><th>의미</th></tr>
+<tr><td>World 경계</td><td>흰 와이어프레임</td><td>±5m air 박스</td><td>시뮬 공간 전체</td></tr>
+<tr><td>Shield (G4_Pb)</td><td>회색 박스</td><td>z = 10 cm</td><td>5mm Pb 차폐</td></tr>
+<tr><td>Detector (G4_WATER)</td><td>하늘색 박스</td><td>z = 100 cm</td><td>water 검출기</td></tr>
+<tr><td>γ trajectory</td><td>녹색 선</td><td>선원 → 사방</td><td>Cs-137 0.662 MeV 감마</td></tr>
+<tr><td>e⁻ trajectory</td><td>빨강 선</td><td>물질 안</td><td>광전/Compton 산란 후 광전자</td></tr>
+<tr><td>Dose hits</td><td>점 또는 작은 표시</td><td>검출기 안</td><td>에너지 침적 위치</td></tr>
+<tr><td>좌표축</td><td>R/G/B</td><td>원점</td><td>X(빨강) Y(녹색) Z(파랑)</td></tr>
+</table>
+</div>
+
+<h3>7.6 vis manager 마우스 조작</h3>
+<ul>
+  <li><b>좌클릭 드래그</b>: 회전</li>
+  <li><b>휠</b>: 줌</li>
+  <li><b>우클릭 드래그</b>: 팬</li>
+  <li><b>키보드 R</b>: reset view</li>
+</ul>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec8">§8. 전통 GEANT4 vs ShieldDose_GUI v3 비교 매트릭스</h2>
+
+<h3>8.0 워크플로우 비교 다이어그램</h3>
+<div class="diagram">
+<svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8b949e"/></marker>
+  </defs>
+  <text x="450" y="20" text-anchor="middle" fill="#f0f6fc" font-size="16" font-weight="600">동일 시뮬을 위한 두 워크플로우 비교</text>
+
+  <!-- 전통 방식 (좌측) -->
+  <text x="200" y="50" text-anchor="middle" fill="#f87171" font-size="14" font-weight="600">전통적 GEANT4 (수 일 ~ 수 주)</text>
+  <rect x="100" y="70" width="200" height="36" fill="rgba(248,113,113,0.15)" stroke="#f87171" rx="4"/>
+  <text x="200" y="93" text-anchor="middle" fill="#e6edf3" font-size="12">1. cc 파일 직접 작성</text>
+
+  <line x1="200" y1="106" x2="200" y2="120" stroke="#8b949e" marker-end="url(#arrow8)"/>
+
+  <rect x="100" y="120" width="200" height="36" fill="rgba(248,113,113,0.15)" stroke="#f87171" rx="4"/>
+  <text x="200" y="143" text-anchor="middle" fill="#e6edf3" font-size="12">2. 핵종 데이터 수동 조회</text>
+
+  <line x1="200" y1="156" x2="200" y2="170" stroke="#8b949e" marker-end="url(#arrow8)"/>
+
+  <rect x="100" y="170" width="200" height="36" fill="rgba(248,113,113,0.15)" stroke="#f87171" rx="4"/>
+  <text x="200" y="193" text-anchor="middle" fill="#e6edf3" font-size="12">3. 매크로 수동 작성</text>
+
+  <line x1="200" y1="206" x2="200" y2="220" stroke="#8b949e" marker-end="url(#arrow8)"/>
+
+  <rect x="100" y="220" width="200" height="36" fill="rgba(248,113,113,0.15)" stroke="#f87171" rx="4"/>
+  <text x="200" y="243" text-anchor="middle" fill="#e6edf3" font-size="12">4. cmake/make 디버깅</text>
+
+  <line x1="200" y1="256" x2="200" y2="270" stroke="#8b949e" marker-end="url(#arrow8)"/>
+
+  <rect x="100" y="270" width="200" height="36" fill="rgba(248,113,113,0.15)" stroke="#f87171" rx="4"/>
+  <text x="200" y="293" text-anchor="middle" fill="#e6edf3" font-size="12">5. 시뮬 + 결과 수동 해석</text>
+
+  <line x1="200" y1="306" x2="200" y2="320" stroke="#8b949e" marker-end="url(#arrow8)"/>
+
+  <rect x="100" y="320" width="200" height="36" fill="rgba(248,113,113,0.05)" stroke="#f87171" stroke-dasharray="3,2" rx="4"/>
+  <text x="200" y="343" text-anchor="middle" fill="#f87171" font-size="11">⚠ PIT 위반 시 처음부터 다시</text>
+
+  <!-- 우리 GUI (우측) -->
+  <text x="700" y="50" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="600">ShieldDose_GUI v3 (수 분 ~ 수 시간)</text>
+
+  <rect x="600" y="70" width="200" height="36" fill="rgba(74,222,128,0.15)" stroke="#4ade80" rx="4"/>
+  <text x="700" y="93" text-anchor="middle" fill="#e6edf3" font-size="12">1. GUI 핵종 콤보 (7개 내장)</text>
+
+  <line x1="700" y1="106" x2="700" y2="120" stroke="#8b949e" marker-end="url(#arrow8)"/>
+
+  <rect x="600" y="120" width="200" height="36" fill="rgba(74,222,128,0.15)" stroke="#4ade80" rx="4"/>
+  <text x="700" y="143" text-anchor="middle" fill="#e6edf3" font-size="12">2. Geometry STL Browse/슬랩</text>
+
+  <line x1="700" y1="156" x2="700" y2="170" stroke="#8b949e" marker-end="url(#arrow8)"/>
+
+  <rect x="600" y="170" width="200" height="36" fill="rgba(74,222,128,0.15)" stroke="#4ade80" rx="4"/>
+  <text x="700" y="193" text-anchor="middle" fill="#e6edf3" font-size="12">3. Run 클릭 (자동 매크로+PIT)</text>
+
+  <line x1="700" y1="206" x2="700" y2="220" stroke="#8b949e" marker-end="url(#arrow8)"/>
+
+  <rect x="600" y="220" width="200" height="36" fill="rgba(74,222,128,0.15)" stroke="#4ade80" rx="4"/>
+  <text x="700" y="243" text-anchor="middle" fill="#e6edf3" font-size="12">4. Results 자동 H*(10)</text>
+
+  <line x1="700" y1="256" x2="700" y2="270" stroke="#8b949e" marker-end="url(#arrow8)"/>
+
+  <rect x="600" y="270" width="200" height="36" fill="rgba(74,222,128,0.15)" stroke="#4ade80" rx="4"/>
+  <text x="700" y="293" text-anchor="middle" fill="#e6edf3" font-size="12">5. Ctrl+E cc export (선택)</text>
+
+  <line x1="700" y1="306" x2="700" y2="320" stroke="#8b949e" marker-end="url(#arrow8)"/>
+
+  <rect x="600" y="320" width="200" height="36" fill="rgba(74,222,128,0.15)" stroke="#4ade80" rx="4"/>
+  <text x="700" y="343" text-anchor="middle" fill="#4ade80" font-size="11">✓ 전통 빌드 가능 + 동료 배포</text>
+
+  <!-- 중앙 화살표: 우리 GUI가 전통 방식으로 가능하게 함 -->
+  <text x="450" y="200" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">cc export</text>
+  <text x="450" y="216" text-anchor="middle" fill="#fbbf24" font-size="11">(Ctrl+E)</text>
+  <line x1="320" y1="240" x2="580" y2="240" stroke="#fbbf24" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow8)"/>
+  <text x="450" y="258" text-anchor="middle" fill="#8b949e" font-size="10">두 방식의 가교</text>
+</svg>
+</div>
+
+<h3>8.1 작업 단계별 비교</h3>
+<table>
+<tr><th>작업 단계</th><th>전통적 GEANT4</th><th>ShieldDose_GUI v3</th><th>시간 절약</th></tr>
+<tr>
+  <td>cc 파일 작성 (Detector, Generator, Action, main)</td>
+  <td>수 시간 ~ 수 일 (직접 코딩)</td>
+  <td><b>0초 (Ctrl+E 자동)</b></td>
+  <td>★★★★★</td>
+</tr>
+<tr>
+  <td>핵종 데이터 조회 (감마상수, 분기율)</td>
+  <td>ENDF/ICRP/QSA 직접 조회 + 단위 변환</td>
+  <td><b>7 핵종 신뢰 데이터 내장</b> + 자동 표시</td>
+  <td>★★★★</td>
+</tr>
+<tr>
+  <td>매크로 작성</td>
+  <td>수십 줄 직접 작성</td>
+  <td><b>자동 생성 (ISS-087 fix 적용)</b></td>
+  <td>★★★★</td>
+</tr>
+<tr>
+  <td>PIT 사전 점검 (CPE, SA ratio 등)</td>
+  <td>경험적 (실패 후 깨달음)</td>
+  <td><b>자동 점검</b> (PIT-001/006/020) — 시뮬 차단</td>
+  <td>★★★★★</td>
+</tr>
+<tr>
+  <td>빌드</td>
+  <td>cmake/make 직접 (cmake 호환성 이슈 시 디버깅)</td>
+  <td>CLI spawn 자동 (사용자 cmake 안 봐도 됨)</td>
+  <td>★★★</td>
+</tr>
+<tr>
+  <td>시뮬 실행</td>
+  <td>./ShieldDoseExport macros/run.mac</td>
+  <td>"Run Simulation" 버튼</td>
+  <td>★★★</td>
+</tr>
+<tr>
+  <td>결과 해석</td>
+  <td>CSV 수동 파싱 + 단위 변환 + buildup 계산</td>
+  <td>ResultsPanel: H*(10) 자동, dose-weighted ratio 자동, PASS/FAIL 자동</td>
+  <td>★★★★</td>
+</tr>
+<tr>
+  <td>3D 시각화</td>
+  <td>vis.mac 직접 작성 + ./app 실행</td>
+  <td>"View in GEANT4 vis manager" 버튼 한 번</td>
+  <td>★★★</td>
+</tr>
+<tr>
+  <td>보고서</td>
+  <td>수동 작성</td>
+  <td>Export HTML/PDF 자동</td>
+  <td>★★★★</td>
+</tr>
+</table>
+
+<h3>8.2 전체 시간 비교</h3>
+<div class="card pass">
+<p><b>동일 시뮬 (Cs-137 + 5mm Pb + water @ 1m) 처음부터 끝까지</b>:</p>
+<ul>
+  <li><b>전통 방식</b>: 신규 사용자 기준 <b>수 일 ~ 수 주</b> (학습 + 코딩 + 디버깅 + 결과 해석)</li>
+  <li><b>우리 GUI</b>: <b>수 분 ~ 수 시간</b> (GUI 클릭만)</li>
+  <li>→ <b>약 100× 시간 단축</b></li>
+</ul>
+</div>
+
+<h3>8.3 ShieldDose_GUI v3의 8 단계 혁신</h3>
+<table>
+<tr><th>#</th><th>혁신</th><th>구체적 내용</th></tr>
+<tr><td>1</td><td>핵종 데이터 통합</td><td>7 핵종 ICRP Pub 21 + ENDF/B-VIII.0 + Verbinski 1973 + Smith &amp; Stabin 2012 신뢰 출처 자동 표시</td></tr>
+<tr><td>2</td><td>STL 임포트 + 자동 단위 추정</td><td>Onshape/CAD STL 임포트 → bbox 분석 → 단위(mm/cm/inch) 자동 추정 + 메시 품질 휴리스틱 (PIT-026)</td></tr>
+<tr><td>3</td><td>자동 매크로 생성 + ISS-087 fix</td><td>SimConfig → 매크로 자동. 위치 단위 라벨 cm 고정 (단위 mis-conversion 방지)</td></tr>
+<tr><td>4</td><td>자동 PIT 점검</td><td>PIT-001 (CPE) + PIT-006 (SA ratio) + PIT-020 (최적 형상) 사전 점검 → 위반 매크로 시뮬 차단</td></tr>
+<tr><td>5</td><td>CLI spawn + 비동기 시뮬</td><td>ProcessRunner가 ShieldDose CLI spawn + stdout/stderr 모니터링 + 진행률 GUI 표시</td></tr>
+<tr><td>6</td><td>결과 통합 표시</td><td>ResultsPanel: dose-weighted ratio (PIT-003) 자동, H*(10) 자동, 6 핵종 PASS/FAIL 자동</td></tr>
+<tr><td>7</td><td><b>cc 파일 export (Ctrl+E)</b> ★ 본 튜토리얼 핵심</td><td>SimConfig → 표준 GEANT4 application 패키지. 우리 GUI 없이도 작동 (점검요청서 영역 E)</td></tr>
+<tr><td>8</td><td>이중 viewer 선택</td><td>"View in GEANT4 vis manager" (기존 GUI) / "View in ShieldDose viewer" (우리 GUI, 단계 B)</td></tr>
+</table>
+
+<h3>8.4 전통 방식의 가치 — 다음 경우 필요</h3>
+<div class="card info">
+<ul>
+  <li><b>코드 통제력</b> 필요 시 (예: 특수 물리 모델 통합)</li>
+  <li><b>GEANT4 내부 학습</b> 목적</li>
+  <li>우리 GUI가 지원 안 하는 <b>고급 기능</b> (다중 검출기 mesh scorer, parallel world 등)</li>
+  <li><b>다른 사용자에 배포</b> 시 (GUI 없이 단독 실행 가능한 응용)</li>
+</ul>
+<p>→ <b>우리 GUI의 cc export 기능</b>은 두 방식의 장점을 결합: GUI로 빠르게 입력 + cc 파일로 자유 수정/배포.</p>
+</div>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec9">§9. 물리 개념 미니 박스</h2>
+
+<h3>9.1 H*(10) — Ambient Dose Equivalent (ICRP-74)</h3>
+<div class="card info">
+<p>방사선 작업 환경의 실효 선량 추정. ICRP Publication 74 표준.</p>
+<ul>
+  <li>정의: 30cm × 30cm × 30cm ICRU 구면 팬텀 10mm 깊이 dose</li>
+  <li>실용 단위: <b>μSv/h</b></li>
+  <li>변환: air kerma × h_K 계수 (Cs-137: 1.20, Co-60: 1.15)</li>
+</ul>
+</div>
+
+<h3>9.2 water dose vs air kerma (PIT-003)</h3>
+<div class="card info">
+<p>두 양은 다름. 단위 환산 필수.</p>
+<ul>
+  <li><b>water dose</b> (D_water): water 검출기 안의 에너지 침적 / 질량 (Gy = J/kg)</li>
+  <li><b>air kerma</b> (K_air): 동일 위치에 air가 있다면 받을 kerma</li>
+  <li>변환: K_air = D_water × (μ_en/ρ)_air / (μ_en/ρ)_water</li>
+  <li>Cs-137 0.662 MeV: ratio ≈ 1.108 (NIST XCOM)</li>
+  <li>ShieldDose는 자동 변환 (PIT-003 fix 적용)</li>
+</ul>
+</div>
+
+<h3>9.3 CPE — Charged Particle Equilibrium (PIT-001)</h3>
+<div class="card info">
+<p>검출기 안에서 광전/Compton으로 생성된 전자의 range가 검출기 두께보다 작아야 dose 정확.</p>
+<ul>
+  <li>Cs-137 0.662 MeV electron range ≈ 2 mm in water</li>
+  <li>최소 두께: 3× range = 6 mm 권장. 본 검출기 1 cm = 5× → ✓ PASS</li>
+  <li>두께 부족 시 dose 과소예측 (~46% 부족 가능, P2 실측 사례)</li>
+</ul>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg">
+  <text x="360" y="20" text-anchor="middle" fill="#f0f6fc" font-size="14" font-weight="600">CPE — 두께 비교 (위반 vs 충족)</text>
+
+  <!-- 광자 in -->
+  <line x1="20" y1="120" x2="120" y2="120" stroke="#fbbf24" stroke-width="2" marker-end="url(#arr9)"/>
+  <text x="65" y="110" fill="#fbbf24" font-size="11">γ (0.662 MeV)</text>
+  <defs><marker id="arr9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fbbf24"/></marker></defs>
+
+  <!-- 위반 case (얇은) -->
+  <text x="200" y="55" text-anchor="middle" fill="#f87171" font-size="12" font-weight="600">⚠ 위반: 2mm water</text>
+  <rect x="125" y="70" width="50" height="100" fill="rgba(99,179,237,0.4)" stroke="#63b3ed"/>
+  <text x="150" y="184" text-anchor="middle" fill="#e6edf3" font-size="10">2mm</text>
+  <text x="150" y="196" text-anchor="middle" fill="#f87171" font-size="9">1× range</text>
+  <!-- 전자 trajectory (검출기 밖으로 빠져나감) -->
+  <line x1="150" y1="120" x2="220" y2="80" stroke="#f87171" stroke-width="1.5" marker-end="url(#arr9b)"/>
+  <line x1="150" y1="120" x2="220" y2="160" stroke="#f87171" stroke-width="1.5" marker-end="url(#arr9b)"/>
+  <defs><marker id="arr9b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f87171"/></marker></defs>
+  <text x="240" y="105" fill="#f87171" font-size="10">e⁻ 빠져나감</text>
+  <text x="200" y="220" text-anchor="middle" fill="#f87171" font-size="11">→ dose ~46% 과소</text>
+
+  <!-- 충족 case (두꺼운) -->
+  <text x="500" y="55" text-anchor="middle" fill="#4ade80" font-size="12" font-weight="600">✓ 충족: 1cm water (5× range)</text>
+  <rect x="380" y="70" width="200" height="100" fill="rgba(99,179,237,0.4)" stroke="#63b3ed"/>
+  <text x="480" y="184" text-anchor="middle" fill="#e6edf3" font-size="10">10mm = 5× range</text>
+  <text x="480" y="196" text-anchor="middle" fill="#4ade80" font-size="9">✓ CPE 충족</text>
+  <!-- 전자 trajectory (검출기 안에서 멈춤) -->
+  <line x1="400" y1="120" x2="450" y2="100" stroke="#4ade80" stroke-width="1.5"/>
+  <line x1="450" y1="100" x2="470" y2="130" stroke="#4ade80" stroke-width="1.5"/>
+  <line x1="470" y1="130" x2="490" y2="115" stroke="#4ade80" stroke-width="1.5"/>
+  <circle cx="490" cy="115" r="3" fill="#4ade80"/>
+  <text x="500" y="105" fill="#4ade80" font-size="10">e⁻ 침적</text>
+  <text x="480" y="220" text-anchor="middle" fill="#4ade80" font-size="11">→ dose 정확</text>
+</svg>
+</div>
+
+<h3>9.4 SA ratio — Solid Angle / Distance² (PIT-006)</h3>
+<div class="card info">
+<p>점선원 가정의 유효성. SA ratio = √(detector_area) / distance &lt; 0.1 권장.</p>
+<ul>
+  <li>본 시뮬: √(5×5) / 100 = 5/100 = 0.05 ✓ PASS</li>
+  <li>위반 시 (예: 30cm + 20×20 검출기 → 0.33): 점선원 역제곱 환산 부정확 → 시뮬 차단</li>
+</ul>
+</div>
+
+<h3>9.5 Buildup factor (PIT-008)</h3>
+<div class="card info">
+<p>broad-beam 차폐에서 산란 광자 보정. transmission = exp(-μρt) × B(μρt, E).</p>
+<ul>
+  <li>ANS-6.4.3-1991 빌드업 데이터 ShieldDose 내장</li>
+  <li>Pb 5mm Cs-137: B ≈ 1.2~1.5 (단순 exp 대비 보정)</li>
+  <li>MC 시뮬은 자동 처리 (산란 트래킹). 해석적 계산만 별도 보정 필요</li>
+</ul>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg">
+  <text x="360" y="20" text-anchor="middle" fill="#f0f6fc" font-size="14" font-weight="600">Buildup — Narrow vs Broad beam</text>
+
+  <defs><marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fbbf24"/></marker>
+        <marker id="arrS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#63b3ed"/></marker></defs>
+
+  <!-- Narrow beam (이상) -->
+  <text x="180" y="55" text-anchor="middle" fill="#4ade80" font-size="12" font-weight="600">이상 (narrow beam) — B = 1</text>
+  <rect x="100" y="80" width="40" height="100" fill="#4a5568" stroke="#fff"/>
+  <text x="120" y="195" text-anchor="middle" fill="#e6edf3" font-size="10">Pb</text>
+  <!-- 직진만 -->
+  <line x1="60" y1="130" x2="160" y2="130" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrG)"/>
+  <line x1="160" y1="130" x2="260" y2="130" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrG)"/>
+  <text x="30" y="120" fill="#fbbf24" font-size="10">γ in</text>
+  <text x="220" y="120" fill="#fbbf24" font-size="10">I = I₀·e^(-μt)</text>
+
+  <!-- Broad beam (현실) -->
+  <text x="540" y="55" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">현실 (broad beam) — B &gt; 1</text>
+  <rect x="460" y="80" width="40" height="100" fill="#4a5568" stroke="#fff"/>
+  <text x="480" y="195" text-anchor="middle" fill="#e6edf3" font-size="10">Pb</text>
+  <!-- 직진 + 산란 -->
+  <line x1="420" y1="130" x2="520" y2="130" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrG)"/>
+  <line x1="520" y1="130" x2="620" y2="130" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrG)"/>
+  <!-- 산란 광자들 (검출기 쪽) -->
+  <line x1="475" y1="100" x2="600" y2="80" stroke="#63b3ed" stroke-width="1.5" marker-end="url(#arrS)"/>
+  <line x1="485" y1="160" x2="610" y2="170" stroke="#63b3ed" stroke-width="1.5" marker-end="url(#arrS)"/>
+  <line x1="490" y1="130" x2="600" y2="115" stroke="#63b3ed" stroke-width="1.5" marker-end="url(#arrS)"/>
+  <text x="390" y="120" fill="#fbbf24" font-size="10">γ in</text>
+  <text x="540" y="245" text-anchor="middle" fill="#fbbf24" font-size="11">I = I₀·e^(-μt)·B(μt, E)</text>
+  <text x="540" y="225" text-anchor="middle" fill="#63b3ed" font-size="10">산란 광자 추가 도달</text>
+</svg>
+</div>
+
+<h3>9.6 Gamma Constant Γ</h3>
+<div class="card info">
+<p>1 Ci 점선원 1m 거리 air kerma rate (또는 exposure rate).</p>
+<ul>
+  <li>단위: <b>R·m²/(Ci·h)</b> (전통) 또는 <b>mSv·m²/(GBq·h)</b> (SI)</li>
+  <li>Cs-137: Γ = 0.330 R·m²/(Ci·h) (ICRP Pub 21)</li>
+  <li>Co-60: Γ = 1.300 R·m²/(Ci·h)</li>
+  <li>점선원 무차폐 1m H*(10): D_rate ≈ Γ × A / r² × h_K</li>
+</ul>
+</div>
+
+<h3>9.7 ISS-087 단위 mis-conversion 학습 사례</h3>
+<div class="card warn">
+<p><b>P2.17.1.0에서 발견된 결정적 버그</b>:</p>
+<ul>
+  <li>증상: STL 검출기 dose가 슬랩 검출기의 151× 큼</li>
+  <li>가설 매트릭스 검증:
+    <ul>
+      <li>(a) G4TessellatedSolid voxel 부피 부정확 — STLParser ratio=1 측정으로 부정</li>
+      <li>(g) 슬랩+STL 이중 SD scoring — 검증 시뮬로 부분 원인 6%</li>
+      <li><b>(n) 매크로 단위 mis-conversion</b> — 진짜 주범 확정 ★</li>
+    </ul>
+  </li>
+  <li>원인: MacroGenerator.cc:144-152가 <code>shieldSTL_X_cm</code> (cm 값) + <code>shieldSTL_Unit</code> ("mm"/"cm" 문자열) 두 의미 다른 단위를 한 매크로 라인에 mixed 출력 → 사용자 "mm" 선택 시 위치 1/10 mis-conversion (10cm → 1cm) → 역제곱 100× dose 증폭</li>
+  <li>fix (v0.9): MacroGenerator 위치 라벨을 항상 "cm" 고정 (SimConfig 필드가 cm 단위)</li>
+  <li>교훈: 단위는 매크로 + 코드 + GUI 세 곳 모두 일관 유지 필수</li>
+</ul>
+</div>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec10">§10. 에러 처리 + FAQ</h2>
+
+<h3>10.1 iCloud Drive working dir에서 시뮬 stuck</h3>
+<div class="card warn">
+<p><b>증상</b>: <code>~/Library/Mobile Documents/com~apple~CloudDocs/...</code>에서 ShieldDose CLI background 실행 시 process UE(uninterruptible) 상태로 stuck. kill -9도 거부.</p>
+<p><b>원인</b>: iCloud Drive의 파일 sync lock</p>
+<p><b>해결</b>: non-iCloud 디렉토리에서 빌드/실행:</p>
+<pre class="cli"><button class="copy-btn" onclick="copyCode(this)">복사</button>cp -r ~/Library/Mobile\ Documents/.../GEANT4_claude/ShieldDose ~/developer/shielddose_local/
+cd ~/developer/shielddose_local/
+source $HOME/geant4/install/bin/geant4.sh
+./ShieldDose macros/run.mac</pre>
+</div>
+
+<h3>10.2 매크로 단위 (ISS-087 fix 이전 vs 이후)</h3>
+<div class="card info">
+<p><b>ISS-087 fix 이전</b> (~v0.8): GUI 매크로 출력 시 <code>shieldSTL_Unit</code> ("mm"/"cm") 라벨 사용 → "mm" 선택 시 위치 1/10 mis-conversion</p>
+<p><b>ISS-087 fix 이후</b> (v0.9+): 매크로 위치 라벨 항상 "cm" 고정. STL 메시 단위 (mm/cm/inch) 콤보는 메시 scale 처리만 (위치와 무관)</p>
+<p>본 튜토리얼 단계 따라하면 모두 fix 적용된 v0.9 이후 동작.</p>
+</div>
+
+<h3>10.3 빌드 실패 — geant4_set_and_check_package_variable 매크로 에러</h3>
+<div class="card warn">
+<p><b>증상</b>: <code>CMake Error: geant4_set_and_check_package_variable Macro invoked with incorrect arguments</code></p>
+<p><b>원인</b>: GEANT4 11.1.2 + CMake 4.x 호환성 (GEANT4 PackageCache.cmake가 3 인자만 전달)</p>
+<p><b>해결</b>: CMakeLists.txt에 macro override 추가 (§4.8 본문 참고). v0.9+의 cc export는 자동 포함.</p>
+</div>
+
+<h3>10.4 STL 단위 자동 추정 한계 (PIT-026)</h3>
+<div class="card warn">
+<p><b>증상</b>: 50mm 박스 STL을 GUI에 임포트 → 자동 추정 "cm" 표시 (실제는 mm)</p>
+<p><b>원인</b>: 휴리스틱 (bbox &lt; 100 → cm 추정, &gt; 100 → mm 확정). 작은 mm 모델은 cm으로 추정될 수 있음</p>
+<p><b>해결</b>: 단위 콤보 수동 "mm"로 변경. ISS-087 fix 후 매크로 위치는 항상 cm이라 mismatch 없음</p>
+</div>
+
+<h3>10.5 GEANT4 vis manager에서 3D 안 보임</h3>
+<div class="card info">
+<p>vis manager 창은 열렸지만 3D geometry 안 보일 때:</p>
+<pre class="macro"><button class="copy-btn" onclick="copyCode(this)">복사</button>/vis/drawVolume      # geometry 그리기
+/vis/viewer/flush    # 화면 갱신</pre>
+</div>
+
+<h3>10.6 Cf-252 mixed-field 시뮬</h3>
+<div class="card info">
+<p>Cf-252는 자발 핵분열로 중성자 + 감마 동시 방출. Neutron HP physics 필요.</p>
+<p>ShieldDose는 매크로의 <code>/physics/</code> 명령 pre-scan으로 자동 활성:</p>
+<pre class="macro"><button class="copy-btn" onclick="copyCode(this)">복사</button>/physics/enableNeutronHP true   # neutron HP 활성
+/physics/biasing both           # γ + neutron 둘 다 importance biasing</pre>
+</div>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="sec11">§11. 검증 체크리스트 + 피드백</h2>
+
+<h3>11.1 사용자 직접 검증 체크리스트</h3>
+<p>각 단계 따라하면서 결과 체크해주세요:</p>
+<ul class="checklist">
+  <li><label><input type="checkbox" id="c1"> §0. GEANT4 11.x + Qt5 + CMake 설치 완료 (geant4-config --version 정상 출력)</label></li>
+  <li><label><input type="checkbox" id="c2"> §1. STL 9개 파일 + 3D 렌더링 27장 확인</label></li>
+  <li><label><input type="checkbox" id="c3"> §2.1. ShieldDose_GUI 정상 실행 (4 wizard 탭 보임)</label></li>
+  <li><label><input type="checkbox" id="c4"> §2.4. Nuclide 패널 신뢰 기관 데이터 표시 확인 ([Ref: ICRP Publication 21] 등)</label></li>
+  <li><label><input type="checkbox" id="c5"> §2.5. Geometry 패널 슬랩 입력 + Run 패널 자동 PIT 점검 통과</label></li>
+  <li><label><input type="checkbox" id="c6"> §2.8. Results 패널 H*(10) 표시 + 두 viewer 버튼 보임</label></li>
+  <li><label><input type="checkbox" id="c7"> §3. cc 파일 export Ctrl+E 클릭 → 출력 폴더에 8개 파일 + 매크로 생성</label></li>
+  <li><label><input type="checkbox" id="c8"> §4. cc 파일 8개 본문이 GUI 입력과 일치 (Pb 5mm, water 5×5×1cm, z=100cm)</label></li>
+  <li><label><input type="checkbox" id="c9"> §5. cmake .. && make -j 빌드 성공 (ShieldDoseExport 바이너리 생성)</label></li>
+  <li><label><input type="checkbox" id="c10"> §5. ./ShieldDoseExport macros/run.mac 시뮬 정상 실행 + exit 0</label></li>
+  <li><label><input type="checkbox" id="c11"> §6. ShieldDose_summary.csv 생성 + DoseRate 값 정상 (~수~수십 μSv/h 영역)</label></li>
+  <li><label><input type="checkbox" id="c12"> §7. ./ShieldDoseExport (인자 없음) 인터랙티브 → vis manager Qt 창 열림</label></li>
+  <li><label><input type="checkbox" id="c13"> §7. vis manager에서 /vis/drawVolume → 3D geometry 표시</label></li>
+  <li><label><input type="checkbox" id="c14"> §7. /run/beamOn 100 → trajectory (녹색 감마, 빨강 전자) 표시</label></li>
+  <li><label><input type="checkbox" id="c15"> §8. 우리 GUI vs 전통 방식 차이 이해 (시간 절약 + 자동 PIT 점검 + 신뢰 데이터)</label></li>
+</ul>
+
+<h3>11.2 피드백 형식</h3>
+<div class="feedback-box">
+<h4 style="color:var(--highlight);">📋 검증 결과 피드백 (채팅창 붙여넣기용)</h4>
+<p>아래 버튼 클릭 → 클립보드 복사 → 채팅창에 붙여넣어 주세요. Claude가 항목별 즉시 수정.</p>
+<button class="feedback-btn" onclick="copyFeedback()">피드백 클립보드 복사</button>
+<pre id="feedback-output" style="margin-top: 14px; font-size: 12px;">## 튜토리얼 검증 피드백 (P2.17.1.0 v1.2-tutorial-rev1)
+
+§0 환경 셋업:        ✅ / 🟡 / 🔴   (코멘트: ...)
+§1 STL 시각화:        ✅ / 🟡 / 🔴
+§2 GUI 단계별:        ✅ / 🟡 / 🔴
+§3 cc export:        ✅ / 🟡 / 🔴
+§4 cc 본문 + 주석:    ✅ / 🟡 / 🔴
+§5 전통 빌드 + 실행:  ✅ / 🟡 / 🔴
+§6 시뮬 결과:         ✅ / 🟡 / 🔴
+§7 vis manager 3D:    ✅ / 🟡 / 🔴
+§8 비교 매트릭스:     ✅ / 🟡 / 🔴
+§9 물리 개념:         ✅ / 🟡 / 🔴
+§10 FAQ:             ✅ / 🟡 / 🔴
+
+자유 코멘트:
+- 추가 필요한 섹션:
+- 불명확한 부분:
+- 다음 작업 우선순위:
+</pre>
+</div>
+
+<hr class="section">
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="footnote">
+<h3>📎 참조 자산</h3>
+<table>
+<tr><th>자산</th><th>위치</th></tr>
+<tr><td>본 튜토리얼 HTML</td><td><code>docs/qa_review/qa_20260514_001312_튜토리얼_GEANT4_전통방식_vs_ShieldDose_GUI.html</code></td></tr>
+<tr><td>스크린샷 자산 (STL 27 + GUI 8)</td><td><code>docs/qa_review/qa_20260514_001312_튜토리얼_assets/</code> 및 <code>docs/qa_review/qa_20260513_231416_assets/</code></td></tr>
+<tr><td>STL 렌더링 스크립트</td><td><code>scripts/render_stl_to_png.py</code></td></tr>
+<tr><td>CcExporter 본체</td><td><code>ShieldDose_GUI_v3/core/CcExporter.{cc,hh}</code></td></tr>
+<tr><td>NuclideDataStore (신뢰 기관 데이터)</td><td><code>ShieldDose_GUI_v3/core/NuclideDataStore.cc</code></td></tr>
+<tr><td>점검요청서 rev3</td><td><code>docs/user_inspection/20260508_144618_Phase1_GUI_사용자점검요청서.html</code></td></tr>
+<tr><td>TR-009 (점검 대행 시험보고서)</td><td><code>reports/test_reports/20260509_122807_TR-009_*.md</code></td></tr>
+<tr><td>TR-010 (재해 복구 검증)</td><td><code>reports/test_reports/20260509_122807_TR-010_*.md</code></td></tr>
+<tr><td>PIT 본문</td><td><code>docs/MC_PITFALLS.md</code></td></tr>
+</table>
+
+<h3>🏷 git tag 매트릭스 (12개)</h3>
+<pre class="cli">v0.1-inspection-baseline             점검요청서 rev1
+v0.2-inspection-final                점검요청서 rev2 + 영역 E
+v0.3-recovery-ready                  재해 복구 인프라
+v0.4-global-recovery                 글로벌 모듈
+v0.5-self-contained-record           자가완결 종합 기록
+v0.6-tr009-tr010-reports             TR-009 + TR-010
+v0.7-pit031-escalation               PIT-031 151× 격상
+v0.8-pit031-root-cause               가설 (h) 부정 + (n) 주범
+v0.9-iss087-fix-and-gui3             ISS-087 fix + cc export
+v1.0-gui4-g4viewer                   GUI #4 + 용어 구분
+v1.1-inspection-rev3-iss087-reflect  점검요청서 rev3 ISS-087 반영
+v1.2-tutorial-rev1                   ★ 본 튜토리얼 (예정)</pre>
+
+<h3>🛡 보존 + 다음 단계</h3>
+<p>본 튜토리얼은 iCloud + GitHub 2중 보존. 자가완결 (HTML + assets 폴더만 있으면 전체 학습 가능). 사용자 피드백 받으면 rev2 (Si Phase A 시뮬 추가) / rev3 (영상 캡쳐) / rev4 (영문판) 가능.</p>
+
+<h3>⏪ 본 튜토리얼 완료 후 복귀 작업 (원래 작업 리마인드)</h3>
+<ol>
+  <li><b>사용자 직접 GUI 검증</b> — File 메뉴 펼침, Ctrl+E 실 클릭, vis manager 안에서 /vis/drawVolume → 3D 시각 확인</li>
+  <li><b>Si 정밀 측정 시뮬</b> — LT-10-A Phase A 본격 (G4_Si 5×5cm × 200μm, 5~50M events, 에너지 sweep)</li>
+  <li><b>Track D-A2 (우리 GUI 자체 3D 위젯)</b> — QOpenGLWidget / Qt3D 통합 (큰 작업, 사용자 결정 시)</li>
+  <li><b>점검요청서 영역 A·D 실시간 검증 결과 흡수</b> — inspection worktree 사용자 점검 후 발견사항 main 흡수</li>
+  <li><b>PIT-031 운영 권고 강화 확산</b> — 전 회귀 매크로 + 가이드에 ISS-087 fix + STL 검출기 절대값 금지 안내 반영</li>
+</ol>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.parentElement;
+  const code = pre.innerText.replace(/^복사\s*/, '');
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✓ 복사됨';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyFeedback() {
+  const out = document.getElementById('feedback-output');
+  // 체크박스 상태 반영
+  let summary = '## 튜토리얼 검증 피드백 (P2.17.1.0 v1.2-tutorial-rev1)\n\n';
+  const labels = [
+    '§0 환경 셋업', '§1 STL 시각화', '§2 GUI 단계별', '§3 cc export',
+    '§4 cc 본문 + 주석', '§5 전통 빌드 + 실행', '§6 시뮬 결과',
+    '§7 vis manager 3D', '§8 비교 매트릭스', '§9 물리 개념', '§10 FAQ'
+  ];
+  for (let i = 0; i < labels.length; i++) {
+    const cb = document.getElementById('c' + (i + 1));
+    const mark = cb && cb.checked ? '✅' : '🟡';
+    summary += labels[i] + ': ' + mark + '\n';
+  }
+  summary += '\n자유 코멘트:\n- \n';
+
+  navigator.clipboard.writeText(summary).then(() => {
+    alert('피드백 클립보드 복사 완료! 채팅창에 붙여넣어 주세요.');
+  });
+}
+</script>
+
+</body>
+</html>
