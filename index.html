@@ -82,6 +82,14 @@ hr.section { border: none; border-top: 2px dashed var(--border); margin: 50px 0;
   <br>대상 독자: <b>이 시스템을 전혀 모르는 사람도 따라할 수 있도록</b>
 </p>
 
+<div style="background: rgba(248,113,113,0.12); border: 2px solid #f87171; border-radius: 8px; padding: 16px 20px; margin: 18px 0;">
+<h4 style="color: #f87171; margin: 0 0 8px;">⚠️ 감사 진행 중 알림 (2026-07-10, P2 제1차 전체회의 PL-5 의결)</h4>
+<p style="margin: 0 0 6px;">본 튜토리얼의 <b>시뮬레이션 절대값 수치는 현재 독립 감사(AUD-E/AUD-H) 진행 중</b>입니다.
+단위·기준값 변환 사슬 검증이 완료될 때까지 <b>본 문서의 수치를 인용하거나 실무 판단에 사용하지 마십시오</b>.</p>
+<p style="margin: 0; font-size: 12px; color: #8b949e;">절차·조작 방법(GUI 사용법, cc export, 빌드 절차)은 감사 대상이 아니며 그대로 유효합니다.
+정정판(v1.5)은 감사 확정 후 2주 내 발행 예정. — ShieldDose 품질보증 분과</p>
+</div>
+
 <div class="card user">
 <h4>📚 이 자료가 다루는 것</h4>
 <p>본 튜토리얼은 한 시뮬레이션 작업(<b>Cs-137 1 Ci, 5mm Pb 차폐, 1m water 검출기</b>)을 <b>두 가지 방법</b>으로 수행하는 과정을 시각 증거 + 단계별 캡쳐 + 복사 가능 코드로 시연합니다:</p>
@@ -1000,6 +1008,10 @@ cmake ..</pre>
 <tr><td>...</td><td>(추가 15개)</td><td>γ/n/e/p 분리 dose, fluence 등</td></tr>
 </table>
 
+
+<div style="background: rgba(251,191,36,0.12); border: 1px solid #fbbf24; border-radius: 6px; padding: 10px 14px; margin: 10px 0; font-size: 13px;">
+🔍 <b>감사 중 (AUD-E) — 인용 금지</b>: 아래 표의 수치는 1M events (RMS 27~39%) 저통계 기반이며 변환 사슬 감사가 진행 중입니다.
+</div>
 <h3>6.3 본 튜토리얼 시뮬 결과 (시나리오 1)</h3>
 <div class="card pass">
 <h4>Cs-137 1 Ci, 5mm Pb, 5×5×1cm water @ 1m, 1M events</h4>
@@ -1007,6 +1019,10 @@ cmake ..</pre>
 <img src="qa_20260514_001312_튜토리얼_assets/traditional_build/03_result_csv.png" alt="시뮬 결과 CSV 해석" style="max-width:1100px;">
 </div>
 
+
+<div style="background: rgba(251,191,36,0.12); border: 1px solid #fbbf24; border-radius: 6px; padding: 10px 14px; margin: 10px 0; font-size: 13px;">
+🔍 <b>감사 중 (AUD-E) — 인용 금지</b>: 아래 표의 수치는 1M events (RMS 27~39%) 저통계 기반이며 변환 사슬 감사가 진행 중입니다.
+</div>
 <h3>6.4 정량 결과 비교 표</h3>
 <table>
 <tr><th>조건</th><th>H*(10) μSv/h</th><th>비고</th></tr>
